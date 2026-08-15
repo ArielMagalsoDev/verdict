@@ -317,7 +317,12 @@ def _submit_lead(db: Session, request: Request, raw: dict, scenario_key: str | N
         raise HTTPException(422, detail={"error": "validation_failed", "details": exc.errors}) from exc
 
     existing = db.scalar(select(Lead).where(Lead.submission_id == lead_dict["submission_id"]))
-    if existing:
+    # A lead that failed permanently (e.g. a transient config problem at the
+    # time) is retried rather than replayed forever — process_lead() already
+    # clears partial child rows on reprocessing. Retries still pass through
+    # the rate-limit and spend gates below like any fresh submission.
+    retrying = existing is not None and existing.status == "failed_permanent"
+    if existing and not retrying:
         job = db.scalar(select(Job).where(Job.lead_id == existing.id))
         return LeadAccepted(
             lead_id=existing.id,
@@ -342,6 +347,20 @@ def _submit_lead(db: Session, request: Request, raw: dict, scenario_key: str | N
                 "message": "Daily demo budget reached. The guided scenarios still work from cache.",
             },
         )
+
+    if retrying:
+        job = db.scalar(select(Job).where(Job.lead_id == existing.id))
+        if job is None:
+            job = Job(lead_id=existing.id)
+            db.add(job)
+        existing.status = "processing"
+        job.status = "queued"
+        job.available_at = datetime.now(UTC)
+        job.last_error = None
+        db.commit()
+        if settings().inline_processing:
+            _process_inline(db, existing, job)
+        return LeadAccepted(lead_id=existing.id, job_id=job.id, status_url=f"/api/v1/leads/{existing.id}")
 
     submitted_at = lead_dict["submitted_at"]
     if isinstance(submitted_at, str):
@@ -530,21 +549,3 @@ def metrics(db: Session = Depends(db_session)):
     lines.extend(f'verdict_workflows{{status="{state}"}} {count}' for state, count in rows)
     return HTMLResponse("\n".join(lines) + "\n", media_type="text/plain; version=0.0.4")
 
-
-@app.get("/health/key-diagnostic")
-def key_diagnostic():
-    """TEMPORARY — reveals no secret material (only length/hash/ascii-ness of
-    the configured key), used once to debug a deploy-time encoding issue.
-    Remove after use."""
-    import hashlib
-
-    key = settings().anthropic_api_key
-    non_ascii = [(i, ch, hex(ord(ch))) for i, ch in enumerate(key) if ord(ch) > 127]
-    return {
-        "length": len(key),
-        "is_ascii": key.isascii(),
-        "sha256_prefix": hashlib.sha256(key.encode("utf-8", errors="replace")).hexdigest()[:12],
-        "first_8": key[:8],
-        "last_8": key[-8:],
-        "non_ascii_positions": non_ascii[:20],
-    }

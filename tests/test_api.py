@@ -64,6 +64,26 @@ def test_scenario_submission_is_idempotent(client):
     assert second.json()["replayed"] is True
 
 
+def test_failed_permanent_lead_is_retried_not_replayed(client, db_session):
+    import uuid
+
+    from verdict.models import Job
+
+    first = client.post("/api/v1/scenarios/sales-ready", json={}).json()
+    lead = db_session.get(Lead, uuid.UUID(first["lead_id"]))
+    lead.status = "failed_permanent"
+    job = db_session.scalar(select(Job).where(Job.lead_id == lead.id))
+    job.status = "failed_permanent"
+    job.last_error = "simulated transient failure"
+    db_session.commit()
+
+    second = client.post("/api/v1/scenarios/sales-ready", json={}).json()
+    assert second["lead_id"] == first["lead_id"]
+    assert second["replayed"] is False
+    db_session.expire_all()
+    assert db_session.get(Lead, lead.id).status != "failed_permanent"
+
+
 def test_unknown_scenario_key_404s(client):
     res = client.post("/api/v1/scenarios/does-not-exist", json={})
     assert res.status_code == 404
