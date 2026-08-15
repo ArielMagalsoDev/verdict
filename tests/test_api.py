@@ -166,6 +166,26 @@ def test_crm_change_set_approve_requires_admin_token(client, db_session):
     assert again.status_code == 200
 
 
+def test_admin_delete_lead_requires_token_and_removes_all_child_rows(client, db_session):
+    lead = _create_completed_lead(db_session)
+    lead_id = lead.id
+
+    unauthorized = client.delete(f"/api/v1/admin/leads/{lead_id}")
+    assert unauthorized.status_code == 401
+
+    res = client.delete(f"/api/v1/admin/leads/{lead_id}", headers={"X-Admin-Token": "test-admin-token"})
+    assert res.status_code == 200
+    assert res.json()["status"] == "deleted"
+
+    assert client.get(f"/api/v1/leads/{lead_id}").status_code == 404
+    db_session.expire_all()
+    assert db_session.get(Lead, lead_id) is None
+    assert db_session.scalar(select(OutreachDraft).where(OutreachDraft.lead_id == lead_id)) is None
+
+    missing = client.delete(f"/api/v1/admin/leads/{lead_id}", headers={"X-Admin-Token": "test-admin-token"})
+    assert missing.status_code == 404
+
+
 # ---------------------------------------------------------------------------
 # Abuse controls
 # ---------------------------------------------------------------------------

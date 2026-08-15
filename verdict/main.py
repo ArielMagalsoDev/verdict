@@ -20,6 +20,7 @@ from .domain.validate import ValidationError, validate_lead
 from .fixtures import DEMO_SCENARIOS, PROJECTS, find_mini_web_page_by_slug, find_scenario
 from .limits import check_rate_limit, refund_spend, reserve_spend, verify_turnstile
 from .models import (
+    AppliedChange,
     AuditEvent,
     CompanyFact,
     CrmChangeSet,
@@ -526,6 +527,27 @@ def reject(change_id: UUID, db: Session = Depends(db_session)):
     except ValueError as exc:
         raise HTTPException(409, detail={"error": str(exc)}) from exc
     return {"id": str(cs.id), "status": cs.status}
+
+
+@app.delete("/api/v1/admin/leads/{lead_id}", dependencies=[Depends(admin)])
+def delete_lead(lead_id: UUID, db: Session = Depends(db_session)):
+    """Ops hygiene: hard-delete a lead and every child row it produced — for
+    clearing test/incident debris (e.g. leads stuck failed_permanent from an
+    unrelated config outage) out of the /operations counts. Not exposed in
+    any UI; admin-token gated like the CRM approve/reject actions above."""
+    lead = db.get(Lead, lead_id)
+    if not lead:
+        raise HTTPException(404)
+    change_set_ids = db.scalars(select(CrmChangeSet.id).where(CrmChangeSet.lead_id == lead_id)).all()
+    if change_set_ids:
+        db.query(AppliedChange).filter(AppliedChange.change_set_id.in_(change_set_ids)).delete(
+            synchronize_session=False
+        )
+    for model in (Job, IdentityMatch, CompanyFact, QualificationDecision, CrmChangeSet, OutreachDraft, AuditEvent):
+        db.query(model).filter(model.lead_id == lead_id).delete(synchronize_session=False)
+    db.delete(lead)
+    db.commit()
+    return {"id": str(lead_id), "status": "deleted"}
 
 
 # ---------------------------------------------------------------------------
