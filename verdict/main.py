@@ -1,4 +1,3 @@
-from contextlib import asynccontextmanager
 from datetime import UTC, datetime
 from pathlib import Path
 from uuid import UUID
@@ -19,7 +18,7 @@ from .db import init_db, session_scope
 from .domain.changeset import derive_outcome
 from .domain.validate import ValidationError, validate_lead
 from .fixtures import DEMO_SCENARIOS, PROJECTS, find_mini_web_page_by_slug, find_scenario
-from .limits import check_rate_limit, reserve_spend, verify_turnstile
+from .limits import check_rate_limit, refund_spend, reserve_spend, verify_turnstile
 from .models import (
     AuditEvent,
     CompanyFact,
@@ -43,22 +42,24 @@ from .ops import (
     get_stuck_workflows,
     get_unsupported_fact_rate,
 )
+from .pipeline import process_lead
 from .schemas import DraftDecisionIn, LeadAccepted
 from .seed import seed_crm
 
 ROOT = Path(__file__).parent
 templates = Jinja2Templates(directory=ROOT / "templates")
 
+# Schema creation + CRM seeding run at import time rather than in an ASGI
+# lifespan hook: serverless ASGI adapters (Vercel and similar) don't
+# reliably invoke `lifespan`, but module import always runs exactly once
+# before any request is served, on every platform. Both calls are
+# idempotent/retry-safe (see db.init_db, seed.seed_crm) so a cold start
+# racing another process is handled the same way it is in Docker Compose.
+init_db()
+with session_scope() as _startup_db:
+    seed_crm(_startup_db)
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    init_db()
-    with session_scope() as db:
-        seed_crm(db)
-    yield
-
-
-app = FastAPI(title="Verdict", version="1.0.0", lifespan=lifespan)
+app = FastAPI(title="Verdict", version="1.0.0")
 app.mount("/static", StaticFiles(directory=ROOT / "static"), name="static")
 
 
@@ -368,7 +369,37 @@ def _submit_lead(db: Session, request: Request, raw: dict, scenario_key: str | N
     job = Job(lead_id=lead.id)
     db.add(job)
     db.commit()
+
+    if settings().inline_processing:
+        _process_inline(db, lead, job)
+
     return LeadAccepted(lead_id=lead.id, job_id=job.id, status_url=f"/api/v1/leads/{lead.id}")
+
+
+def _process_inline(db: Session, lead: Lead, job: Job) -> None:
+    """Serverless fallback for environments with no persistent worker
+    process (see Settings.inline_processing): runs the pipeline synchronously
+    within the request, then marks the job accordingly, mirroring worker.py's
+    own single-attempt terminal states. The response is still sent after this
+    returns, so by the time a client's first poll lands the lead is already
+    complete — same experience as the original app's own blocking request,
+    just wrapped in the same 202/poll API shape the async worker path uses."""
+    job.status = "running"
+    job.attempts += 1
+    db.commit()
+    try:
+        process_lead(db, lead)
+        job.status = "completed"
+        db.commit()
+    except Exception as exc:  # noqa: BLE001 — single attempt inline, no retry queue to hand off to
+        db.rollback()
+        lead = db.get(Lead, lead.id)
+        lead.status = "failed_permanent"
+        job = db.get(Job, job.id)
+        job.status = "failed_permanent"
+        job.last_error = str(exc)
+        db.commit()
+        refund_spend(db)
 
 
 @app.post("/api/v1/leads", response_model=LeadAccepted, status_code=202)

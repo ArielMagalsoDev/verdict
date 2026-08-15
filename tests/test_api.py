@@ -169,6 +169,29 @@ def test_rate_limit_blocks_after_the_configured_ceiling(client):
     assert last.json()["error"] == "rate_limited"
 
 
+def test_inline_processing_mode_completes_before_the_response_is_returned(client, monkeypatch):
+    """Serverless platforms (Vercel and similar) can't run the persistent
+    verdict-worker process, so Settings.inline_processing makes the API
+    request itself run the pipeline synchronously. Verify a lead is already
+    `completed` the instant the 202 response comes back, with no worker
+    involved at all."""
+    from verdict.config import settings
+
+    monkeypatch.setenv("INLINE_PROCESSING", "true")
+    settings.cache_clear()
+    try:
+        res = client.post("/api/v1/scenarios/sales-ready", json={})
+        assert res.status_code == 202
+        lead_id = res.json()["lead_id"]
+
+        state = client.get(f"/api/v1/leads/{lead_id}").json()
+        assert state["status"] == "completed"
+        assert state["outcome"] == "qualified"
+        assert state["decision"]["score"] == 100
+    finally:
+        settings.cache_clear()  # restore default (inline_processing=False) for later tests
+
+
 def test_budget_exhausted_blocks_new_leads_but_not_replays(client, db_session):
     lead = _create_completed_lead(db_session, "sales-ready")
 
