@@ -3,4 +3,4 @@ WORKDIR /app
 COPY pyproject.toml .
 COPY verdict verdict
 RUN pip install --no-cache-dir .
-CMD ["uvicorn", "verdict.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "verdict.main:app", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers", "--forwarded-allow-ips=*"]

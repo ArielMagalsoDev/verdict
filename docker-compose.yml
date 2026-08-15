@@ -13,7 +13,11 @@ services:
     volumes: ["verdict_data:/var/lib/postgresql/data"]
   web:
     build: .
-    command: uvicorn verdict.main:app --host 0.0.0.0 --port 8000
+    # --proxy-headers/--forwarded-allow-ips: trust the upstream's X-Forwarded-Proto
+    # so request.url_for() reports https behind a TLS-terminating reverse proxy
+    # (e.g. the Traefik in front of this on the VPS) instead of the plain-http
+    # transport between the proxy and this container.
+    command: uvicorn verdict.main:app --host 0.0.0.0 --port 8000 --proxy-headers --forwarded-allow-ips='*'
     env_file: .env
     environment:
       DATABASE_URL: postgresql+psycopg://verdict:verdict@db:5432/verdict
