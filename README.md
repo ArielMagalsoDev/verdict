@@ -105,18 +105,18 @@ posture.
 
 ## Deployments
 
-**The VPS is the one live deployment this project actively maintains:**
-web + **durable worker** + Postgres, HTTPS via Traefik — https://srv1906425.hstgr.cloud
+**Production is the VPS** — web + **durable worker** + Postgres behind Traefik
+(Let's Encrypt HTTPS), serving https://verdict.arielmagalso.com (and the box's own
+https://srv1906425.hstgr.cloud alias).
 
 Redeploy with `./deploy-vps.sh` (rsync + `docker compose up -d --build`); the server's `.env` and
 its Traefik routing labels in `docker-compose.override.yml` are left untouched, so secrets never
 leave the box.
 
-Cloudflare Turnstile is not configured there yet: it answers on the shared `*.hstgr.cloud`
-hostname, and Turnstile refuses to issue tokens for that suffix (error 110200). Since the bot
-check fails closed whenever a secret is present, turning it on today would block every
-submission. Point a real subdomain at the VPS, add it to the Turnstile widget, then put
-`TURNSTILE_SITE_KEY`/`TURNSTILE_SECRET_KEY` in `/docker/verdict/.env`.
+Cloudflare Turnstile is live, with the production domain registered on the widget. One caveat on
+the `*.hstgr.cloud` alias: Turnstile refuses to issue tokens for that shared suffix (error
+110200), and the bot check fails closed — so demo submissions only work on the real domain,
+which is the intended entry point anyway.
 
 A second deployment exists on Vercel (serverless, `inline_processing` runs the pipeline inside
 the request) at https://verdict-python.vercel.app. It is frozen as-is — no further fixes, env
