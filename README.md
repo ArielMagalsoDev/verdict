@@ -103,6 +103,27 @@ migrations directory; the schema is created with `Base.metadata.create_all()` on
 schema changes are a "drop the volume and restart" operation, same as the original's fresh-project
 posture.
 
+## Deployments
+
+Two live deployments, exercising both halves of the design:
+
+| | Architecture | URL |
+| --- | --- | --- |
+| VPS (Docker) | web + **durable worker** + Postgres, HTTPS via Traefik | https://srv1906425.hstgr.cloud |
+| Vercel | serverless, `inline_processing` runs the pipeline inside the request | https://verdict-python.vercel.app |
+
+The VPS is the reference deployment — it's the only one that can run the polling worker this
+port is built around. Redeploy with `./deploy-vps.sh` (rsync + `docker compose up -d --build`);
+the server's `.env` and its Traefik routing labels in `docker-compose.override.yml` are left
+untouched, so secrets never leave the box.
+
+Cloudflare Turnstile is configured on the Vercel deployment. It is deliberately *not* set on the
+VPS while it answers on the shared `*.hstgr.cloud` hostname — Turnstile refuses to issue tokens
+for that suffix (error 110200), and since the bot check fails closed whenever a secret is
+present, leaving it configured there would block every submission. Point a real subdomain at the
+VPS, add it to the Turnstile widget, then put `TURNSTILE_SITE_KEY`/`TURNSTILE_SECRET_KEY` back in
+`/docker/verdict/.env`.
+
 ## Project layout
 
 ```
