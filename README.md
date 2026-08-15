@@ -105,24 +105,23 @@ posture.
 
 ## Deployments
 
-Two live deployments, exercising both halves of the design:
+**The VPS is the one live deployment this project actively maintains:**
+web + **durable worker** + Postgres, HTTPS via Traefik — https://srv1906425.hstgr.cloud
 
-| | Architecture | URL |
-| --- | --- | --- |
-| VPS (Docker) | web + **durable worker** + Postgres, HTTPS via Traefik | https://srv1906425.hstgr.cloud |
-| Vercel | serverless, `inline_processing` runs the pipeline inside the request | https://verdict-python.vercel.app |
+Redeploy with `./deploy-vps.sh` (rsync + `docker compose up -d --build`); the server's `.env` and
+its Traefik routing labels in `docker-compose.override.yml` are left untouched, so secrets never
+leave the box.
 
-The VPS is the reference deployment — it's the only one that can run the polling worker this
-port is built around. Redeploy with `./deploy-vps.sh` (rsync + `docker compose up -d --build`);
-the server's `.env` and its Traefik routing labels in `docker-compose.override.yml` are left
-untouched, so secrets never leave the box.
+Cloudflare Turnstile is not configured there yet: it answers on the shared `*.hstgr.cloud`
+hostname, and Turnstile refuses to issue tokens for that suffix (error 110200). Since the bot
+check fails closed whenever a secret is present, turning it on today would block every
+submission. Point a real subdomain at the VPS, add it to the Turnstile widget, then put
+`TURNSTILE_SITE_KEY`/`TURNSTILE_SECRET_KEY` in `/docker/verdict/.env`.
 
-Cloudflare Turnstile is configured on the Vercel deployment. It is deliberately *not* set on the
-VPS while it answers on the shared `*.hstgr.cloud` hostname — Turnstile refuses to issue tokens
-for that suffix (error 110200), and since the bot check fails closed whenever a secret is
-present, leaving it configured there would block every submission. Point a real subdomain at the
-VPS, add it to the Turnstile widget, then put `TURNSTILE_SITE_KEY`/`TURNSTILE_SECRET_KEY` back in
-`/docker/verdict/.env`.
+A second deployment exists on Vercel (serverless, `inline_processing` runs the pipeline inside
+the request) at https://verdict-python.vercel.app. It is frozen as-is — no further fixes, env
+changes, or redeploys are made there; it proved the serverless-compatible code path works but the
+VPS is the one this repo is developed against going forward.
 
 ## Project layout
 
