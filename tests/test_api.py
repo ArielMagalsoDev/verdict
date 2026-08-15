@@ -166,6 +166,24 @@ def test_crm_change_set_approve_requires_admin_token(client, db_session):
     assert again.status_code == 200
 
 
+def test_admin_list_leads_requires_token_and_filters_by_status(client, db_session):
+    lead = _create_completed_lead(db_session)
+
+    unauthorized = client.get("/api/v1/admin/leads")
+    assert unauthorized.status_code == 401
+
+    res = client.get("/api/v1/admin/leads", headers={"X-Admin-Token": "test-admin-token"})
+    assert res.status_code == 200
+    ids = [row["id"] for row in res.json()["leads"]]
+    assert str(lead.id) in ids
+
+    filtered = client.get(
+        "/api/v1/admin/leads", params={"status": "failed_permanent"}, headers={"X-Admin-Token": "test-admin-token"}
+    )
+    assert filtered.status_code == 200
+    assert str(lead.id) not in [row["id"] for row in filtered.json()["leads"]]
+
+
 def test_admin_delete_lead_requires_token_and_removes_all_child_rows(client, db_session):
     lead = _create_completed_lead(db_session)
     lead_id = lead.id

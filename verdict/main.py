@@ -529,6 +529,29 @@ def reject(change_id: UUID, db: Session = Depends(db_session)):
     return {"id": str(cs.id), "status": cs.status}
 
 
+@app.get("/api/v1/admin/leads", dependencies=[Depends(admin)])
+def list_leads(status: str | None = None, db: Session = Depends(db_session)):
+    """Ops hygiene: a minimal id/status/company listing so debris (e.g. a lead
+    stuck failed_permanent from an unrelated config outage) can be found and
+    passed to DELETE /api/v1/admin/leads/{id} without a DB console."""
+    stmt = select(Lead).order_by(Lead.created_at.desc())
+    if status:
+        stmt = stmt.where(Lead.status == status)
+    rows = db.scalars(stmt).all()
+    return {
+        "leads": [
+            {
+                "id": str(lead.id),
+                "status": lead.status,
+                "company_name": lead.company_name,
+                "scenario_key": lead.scenario_key,
+                "created_at": lead.created_at.isoformat(),
+            }
+            for lead in rows
+        ]
+    }
+
+
 @app.delete("/api/v1/admin/leads/{lead_id}", dependencies=[Depends(admin)])
 def delete_lead(lead_id: UUID, db: Session = Depends(db_session)):
     """Ops hygiene: hard-delete a lead and every child row it produced — for
