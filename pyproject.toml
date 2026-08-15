@@ -3,7 +3,7 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "verdict-fastapi"
+name = "verdict-python"
 version = "0.1.0"
 description = "Evidence-gated AI lead qualification and approval-gated CRM writes"
 requires-python = ">=3.12"
