@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "partials/icons.html" import lucide %}
 {% block content %}
 
 <!-- HERO -->
@@ -8,12 +9,12 @@
     <span class="pixel-block" style="top:48px; left:48px; width:48px; height:48px;"></span>
     <span class="pixel-block" style="top:120px; left:0; width:48px; height:48px;"></span>
   </div>
-  <div class="container-6xl" style="padding-top:5rem; padding-bottom:4rem;">
+  <div class="container-6xl pt-20 pb-16 sm:pt-28 sm:pb-24 relative">
     <div class="text-center reveal">
       <p class="label label-ink" style="display:inline-block; border:1px solid var(--line); border-radius:999px; padding:0.25rem 1rem; background:#fff;">//ARIEL MAGALSO &middot; AI ENGINEER</p>
     </div>
     <div class="reveal" style="--reveal-delay:100ms;">
-      <h1 class="display-hero text-center mt-10" style="font-size: clamp(2.25rem, 6vw, 4.5rem);">It never guesses</h1>
+      <h1 class="display-hero mt-10 text-center text-4xl sm:text-6xl lg:text-7xl">It never guesses</h1>
     </div>
     <div class="text-center reveal" style="--reveal-delay:200ms;">
       <p class="text-lg mt-10 max-w-2xl mx-auto">
@@ -44,7 +45,7 @@
 <section id="about" class="container-6xl py-20" style="scroll-margin-top:6rem;">
   <div class="reveal">
     <p class="label mb-3">//ABOUT THIS PROJECT</p>
-    <h2 class="heading-2 text-4xl sm:text-6xl max-w-3xl">At its core: AI that knows when <em>not</em> to act</h2>
+    <h2 class="heading-2 text-4xl sm:text-56 max-w-3xl">At its core: AI that knows when <em>not</em> to act</h2>
     <p class="text-base text-muted mt-6 max-w-2xl">
       The numbers below are measured from the live pipeline and its evaluation suite —
       each one represents a failure mode this system was built to refuse.
@@ -72,19 +73,19 @@
 <section class="container-6xl py-16">
   <div class="reveal">
     <p class="label mb-3">//THE FOUR OUTCOMES</p>
-    <h2 class="heading-2 text-4xl sm:text-6xl max-w-3xl">One inbox. Four responsible outcomes.</h2>
+    <h2 class="heading-2 text-4xl sm:text-64 max-w-3xl">One inbox. Four responsible outcomes.</h2>
   </div>
   <div class="grid-responsive mt-12" style="grid-template-columns: repeat(2, 1fr); gap: 1.25rem;">
     {% for o in [
-      {"n": "01", "icon": "&#10003;", "label": "Qualified", "badge": "badge-outcome-qualified", "desc": "Sufficient evidence, meets the ICP — assigned, drafted, ready for a rep.", "points": ["Evidence-cited score", "Territory routing", "Outreach draft for approval"]},
-      {"n": "02", "icon": "?", "label": "Insufficient evidence", "badge": "badge-outcome-insufficient_evidence", "desc": "Can't be scored responsibly — returns the exact questions that would unblock it.", "points": ["No number emitted", "Unblocking questions", "SDR verification task"]},
-      {"n": "03", "icon": "&times;", "label": "Disqualified", "badge": "badge-outcome-disqualified", "desc": "Scored, doesn't meet the ICP — reason recorded, no rep time spent.", "points": ["Explicit rule reason", "Ruleset version recorded", "Zero outreach sent"]},
-      {"n": "04", "icon": "&#8862;", "label": "Duplicate / merge review", "badge": "badge-outcome-duplicate_or_merge_review", "desc": "Matches an existing record — activity attached, never a silent duplicate.", "points": ["Identity-first matching", "Activity attached", "No duplicate records"]},
+      {"n": "01", "icon": "check-circle-2", "label": "Qualified", "badge": "badge-outcome-qualified", "desc": "Sufficient evidence, meets the ICP — assigned, drafted, ready for a rep.", "points": ["Evidence-cited score", "Territory routing", "Outreach draft for approval"]},
+      {"n": "02", "icon": "file-question", "label": "Insufficient evidence", "badge": "badge-outcome-insufficient_evidence", "desc": "Can't be scored responsibly — returns the exact questions that would unblock it.", "points": ["No number emitted", "Unblocking questions", "SDR verification task"]},
+      {"n": "03", "icon": "x-circle", "label": "Disqualified", "badge": "badge-outcome-disqualified", "desc": "Scored, doesn't meet the ICP — reason recorded, no rep time spent.", "points": ["Explicit rule reason", "Ruleset version recorded", "Zero outreach sent"]},
+      {"n": "04", "icon": "copy-x", "label": "Duplicate / merge review", "badge": "badge-outcome-duplicate_or_merge_review", "desc": "Matches an existing record — activity attached, never a silent duplicate.", "points": ["Identity-first matching", "Activity attached", "No duplicate records"]},
     ] %}
     <div class="reveal" style="--reveal-delay: {{ loop.index0 * 80 }}ms;">
       <div class="card card-lift p-7 h-full flex flex-col">
         <div class="flex items-start justify-between gap-4">
-          <span class="icon-chip" aria-hidden="true">{{ o.icon | safe }}</span>
+          <span class="icon-chip" aria-hidden="true">{{ lucide(o.icon) }}</span>
           <span class="ghost-num">{{ o.n }}</span>
         </div>
         <div class="mt-4"><span class="pill {{ o.badge }}">{{ o.label }}</span></div>
@@ -105,7 +106,7 @@
   <div class="grid-responsive items-center" style="grid-template-columns: 1.1fr 0.9fr; gap: 3rem;">
     <div class="reveal">
       <p class="label mb-3">//THE THESIS</p>
-      <h2 class="heading-2 text-4xl" style="font-size: clamp(2rem,4vw,3.25rem);">Every automation starts with the ways AI fails</h2>
+      <h2 class="heading-2 text-4xl sm:text-52">Every automation starts with the ways AI fails</h2>
       <p class="text-base text-muted mt-6">
         An LLM asked to score leads scores everything a confident 78. Asked to research a
         company it doesn't know, it invents a plausible industry. Both write straight into
@@ -135,19 +136,19 @@
   <div class="container-6xl py-20">
     <div class="reveal">
       <p class="label label-lime mb-3">//THE PIPELINE</p>
-      <h2 class="heading-2 text-4xl sm:text-6xl max-w-3xl">Judgment work, staged and gated</h2>
+      <h2 class="heading-2 text-4xl sm:text-64 max-w-3xl">Judgment work, staged and gated</h2>
     </div>
     <div class="mt-12 grid-responsive" style="grid-template-columns: repeat(4, 1fr); gap: 1.25rem;">
       {% for step in [
-        {"n": "01", "icon": "&#128272;", "title": "Resolve & validate", "body": "Normalize the submission, resolve contact and company identity, and check for duplicates before any model spend."},
-        {"n": "02", "icon": "&#128269;", "title": "Research with citations", "body": "Enrich company facts against approved sources. Every fact carries a source link and a verified / uncertain / conflicting status."},
-        {"n": "03", "icon": "&#9878;", "title": "Gate, then score", "body": "An evidence-sufficiency gate runs first. Past the gate, deterministic ICP rules produce an explainable score — the model never picks the number."},
-        {"n": "04", "icon": "&#9998;", "title": "Approve & write", "body": "Outreach drafts and CRM changes are proposed as diffs. A human approves; writes are idempotent and fully audited."},
+        {"n": "01", "icon": "fingerprint", "title": "Resolve & validate", "body": "Normalize the submission, resolve contact and company identity, and check for duplicates before any model spend."},
+        {"n": "02", "icon": "scan-search", "title": "Research with citations", "body": "Enrich company facts against approved sources. Every fact carries a source link and a verified / uncertain / conflicting status."},
+        {"n": "03", "icon": "scale", "title": "Gate, then score", "body": "An evidence-sufficiency gate runs first. Past the gate, deterministic ICP rules produce an explainable score — the model never picks the number."},
+        {"n": "04", "icon": "pen-line", "title": "Approve & write", "body": "Outreach drafts and CRM changes are proposed as diffs. A human approves; writes are idempotent and fully audited."},
       ] %}
       <div class="reveal" style="--reveal-delay: {{ loop.index0 * 100 }}ms;">
         <div class="card p-6 h-full">
           <div class="flex items-center justify-between">
-            <span class="icon-chip" aria-hidden="true">{{ step.icon | safe }}</span>
+            <span class="icon-chip" aria-hidden="true">{{ lucide(step.icon) }}</span>
             <p class="numbering" style="color:var(--lime);">//{{ step.n }}</p>
           </div>
           <p class="font-semibold text-lg mt-4">{{ step.title }}</p>
@@ -176,14 +177,14 @@
 <section class="container-6xl py-10">
   <div class="reveal">
     <p class="label mb-3">//THE DIFFERENCE</p>
-    <h2 class="heading-2 text-4xl sm:text-6xl max-w-3xl">Naive AI qualification vs Verdict</h2>
+    <h2 class="heading-2 text-4xl sm:text-64 max-w-3xl">Naive AI qualification vs Verdict</h2>
   </div>
   <div class="grid-responsive mt-10" style="grid-template-columns: 1fr 1fr; gap: 1.25rem;">
     <div class="reveal">
       <div class="card p-7 h-full">
         <p class="font-display font-semibold text-lg mb-2" style="color:var(--muted);">LLM straight into the CRM</p>
         {% for row in ["Scores every lead a confident 78", "Invents company facts under uncertainty", "Writes fabrications straight into the CRM", "Creates a duplicate for every repeat email", "Sends outreach nobody reviewed", "No trace of why a decision happened"] %}
-        <div class="compare-row"><span class="compare-mark no" aria-hidden="true">&times;</span><span class="text-muted">{{ row }}</span></div>
+        <div class="compare-row"><span class="compare-mark no" aria-hidden="true">&#10005;</span><span class="text-muted">{{ row }}</span></div>
         {% endfor %}
       </div>
     </div>
@@ -202,7 +203,7 @@
 <section class="container-6xl py-16">
   <div class="reveal">
     <p class="label mb-3">//THE MIND BEHIND THE WORK</p>
-    <h2 class="heading-2 text-4xl sm:text-6xl">Ariel Magalso</h2>
+    <h2 class="heading-2 text-4xl sm:text-56">Ariel Magalso</h2>
     <p class="text-lg mt-3">AI Engineer &middot; Philippines</p>
   </div>
   <div class="grid-responsive mt-10 items-stretch" style="grid-template-columns: 1fr 1fr; gap: 1.25rem;">
@@ -214,7 +215,7 @@
           deployment. I turn ambiguous business workflows into reliable, human-in-the-loop
           systems where traceability matters as much as speed.
         </p>
-        <ul class="grid grid-cols-2 gap-3 text-sm mt-6 pt-5 border-t list-none">
+        <ul class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm mt-6 pt-5 border-t list-none">
           {% for c in ["AI workflow architecture", "CRM and operations automation", "Structured LLM extraction", "Evaluation and reliability testing", "Human approval workflows", "Monitoring, cost controls, and audit trails"] %}
           <li class="flex items-center gap-2_5"><span class="compare-mark yes" aria-hidden="true">&#10003;</span>{{ c }}</li>
           {% endfor %}
@@ -243,7 +244,7 @@
 <section class="container-6xl py-14">
   <div class="reveal">
     <p class="label mb-3">//PROOF LOG</p>
-    <h2 class="heading-2 text-4xl sm:text-6xl max-w-3xl">Milestones you can verify</h2>
+    <h2 class="heading-2 text-4xl sm:text-56 max-w-3xl">Milestones you can verify</h2>
   </div>
   <div class="mt-8">
     {% for row in [
@@ -253,7 +254,7 @@
       {"date": "AUG 2026", "title": "Durable worker deployed", "detail": "Spend caps, rate limits, cached guided scenarios"},
     ] %}
     <div class="reveal" style="--reveal-delay: {{ loop.index0 * 60 }}ms;">
-      <div class="flex flex-wrap items-baseline justify-between gap-4 py-5 border-b">
+      <div class="flex flex-wrap items-baseline justify-between gap-x-8 gap-y-1 py-5 border-b">
         <span class="label shrink-0">{{ row.date }}</span>
         <span class="font-semibold text-lg" style="flex:1; min-width:12rem;">{{ row.title }}</span>
         <span class="text-sm text-muted">{{ row.detail }}</span>
@@ -275,7 +276,7 @@
   <div class="container-4xl text-center" style="padding-top:5rem; padding-bottom:5rem;">
     <div class="reveal">
       <p class="label label-lime mb-6">//THE PORTFOLIO STATEMENT</p>
-      <p class="heading-2 text-3xl leading-tight">
+      <p class="heading-2 text-3xl sm:text-4xl leading-tight">
         &ldquo;The AI meant to clean your pipeline shouldn't become the fastest way to
         poison your system of record.&rdquo;
       </p>
@@ -288,18 +289,18 @@
 <section class="container-6xl py-16">
   <div class="reveal">
     <p class="label mb-3">//WHY IT HOLDS UP</p>
-    <h2 class="heading-2 text-4xl sm:text-6xl max-w-3xl">Four properties, enforced everywhere</h2>
+    <h2 class="heading-2 text-4xl sm:text-56 max-w-3xl">Four properties, enforced everywhere</h2>
   </div>
   <div class="grid-responsive mt-10" style="grid-template-columns: repeat(4, 1fr);">
     {% for card in [
-      {"icon": "&#128279;", "title": "Evidence-linked", "body": "Every company fact and score criterion cites a source a human can open and check."},
-      {"icon": "{ }", "title": "Deterministic where it counts", "body": "The model extracts and classifies; plain code applies the rules and arithmetic."},
-      {"icon": "&#128100;", "title": "Human-in-the-loop", "body": "Consequential actions — outreach, CRM writes, merges — wait for explicit approval."},
-      {"icon": "&#128200;", "title": "Operable", "body": "Latency, cost, failures, and audit events are visible on a live operations page."},
+      {"icon": "link-2", "title": "Evidence-linked", "body": "Every company fact and score criterion cites a source a human can open and check."},
+      {"icon": "braces", "title": "Deterministic where it counts", "body": "The model extracts and classifies; plain code applies the rules and arithmetic."},
+      {"icon": "user-check", "title": "Human-in-the-loop", "body": "Consequential actions — outreach, CRM writes, merges — wait for explicit approval."},
+      {"icon": "activity", "title": "Operable", "body": "Latency, cost, failures, and audit events are visible on a live operations page."},
     ] %}
     <div class="reveal" style="--reveal-delay: {{ loop.index0 * 80 }}ms;">
       <div class="card card-lift p-6 h-full">
-        <span class="icon-chip mb-5" aria-hidden="true" style="margin-bottom:1.25rem;">{{ card.icon | safe }}</span>
+        <span class="icon-chip mb-5" aria-hidden="true" style="margin-bottom:1.25rem;">{{ lucide(card.icon) }}</span>
         <p class="font-semibold text-lg">{{ card.title }}</p>
         <p class="text-sm text-muted mt-2 leading-relaxed">{{ card.body }}</p>
       </div>
@@ -311,7 +312,7 @@
 <!-- IMPACT CALCULATOR -->
 <section class="container-6xl py-16">
   <p class="label mb-3">//ILLUSTRATIVE CALCULATOR</p>
-  <h2 class="heading-2 text-4xl sm:text-6xl max-w-3xl">Measure the tradeoff, not the hype.</h2>
+  <h2 class="heading-2 text-4xl sm:text-64 max-w-3xl">Measure the tradeoff, not the hype.</h2>
   <p class="text-base text-muted mt-4 max-w-2xl">
     Adjust the assumptions for your own operation. These are not measured customer results — this
     demonstrates the calculation, seeded with the fictional example from the product plan (800
@@ -367,7 +368,7 @@
   <div class="grid-responsive items-start" style="grid-template-columns: 0.8fr 1.2fr; gap: 3rem;">
     <div class="reveal">
       <p class="label mb-3">//FAQS</p>
-      <h2 class="heading-2 text-4xl" style="font-size: clamp(2rem,4vw,3.25rem);">Before you run the demo</h2>
+      <h2 class="heading-2 text-4xl sm:text-52">Before you run the demo</h2>
       <a href="/demo" class="btn-dark-icon mt-8" style="display:inline-flex;"><span class="icon-square" aria-hidden="true">&rarr;</span>Run it now</a>
     </div>
     <div class="reveal" style="--reveal-delay:100ms;">
