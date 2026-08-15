@@ -529,3 +529,22 @@ def metrics(db: Session = Depends(db_session)):
     lines = ["# TYPE verdict_workflows gauge"]
     lines.extend(f'verdict_workflows{{status="{state}"}} {count}' for state, count in rows)
     return HTMLResponse("\n".join(lines) + "\n", media_type="text/plain; version=0.0.4")
+
+
+@app.get("/health/key-diagnostic")
+def key_diagnostic():
+    """TEMPORARY — reveals no secret material (only length/hash/ascii-ness of
+    the configured key), used once to debug a deploy-time encoding issue.
+    Remove after use."""
+    import hashlib
+
+    key = settings().anthropic_api_key
+    non_ascii = [(i, ch, hex(ord(ch))) for i, ch in enumerate(key) if ord(ch) > 127]
+    return {
+        "length": len(key),
+        "is_ascii": key.isascii(),
+        "sha256_prefix": hashlib.sha256(key.encode("utf-8", errors="replace")).hexdigest()[:12],
+        "first_8": key[:8],
+        "last_8": key[-8:],
+        "non_ascii_positions": non_ascii[:20],
+    }
