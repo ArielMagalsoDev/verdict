@@ -1,0 +1,52 @@
+<section id="escalation" aria-label="AI safeguards series: three sibling projects by escalating consequence" class="container-6xl py-16 reveal">
+  <p class="label mb-3">//AI SAFEGUARDS SERIES</p>
+  <h2 class="heading-2 text-4xl sm:text-6xl max-w-3xl">Three systems, one argument</h2>
+  <p class="text-base text-muted mt-6 max-w-2xl">
+    Each one automates judgment work an LLM will confidently get wrong — and each is built
+    against a bigger consequence than the last. The safeguards get harder as the cost of
+    being wrong goes up.
+  </p>
+
+  <ul class="escalation-ladder mt-10" role="list">
+    {% for project in projects %}
+    {% set is_current = project.id == "verdict" %}
+    <li class="escalation-step reveal" style="--reveal-delay: {{ loop.index0 * 120 }}ms;">
+      <a href="{{ '/evals' if is_current else project.href }}"
+         {% if not is_current %}target="_blank" rel="noopener noreferrer"{% endif %}
+         {% if is_current %}aria-current="page"{% endif %}
+         class="escalation-card card card-lift{{ ' escalation-card-current' if is_current else '' }}">
+        <div class="escalation-card-body">
+          <div class="flex items-center justify-between gap-3">
+            <span class="escalation-index">//0{{ project.order }}</span>
+            {% if is_current %}<span class="escalation-badge">You are here</span>{% endif %}
+          </div>
+          <p class="font-semibold text-lg mt-4">{{ project.name }}</p>
+          <p class="text-sm text-muted mt-1">{{ project.domain }}</p>
+          <div class="escalation-meter mt-4" style="--nc: {{ ramp_fg[project.order] }};" aria-hidden="true">
+            {% for seg in [1,2,3] %}
+            <i class="{{ 'on' if seg <= project.order else '' }}"></i>
+            {% endfor %}
+          </div>
+          <div class="escalation-meter-label mt-2">
+            <span class="escalation-meter-stake" style="--nc: {{ ramp_fg[project.order] }};">{{ project.stake }}</span>
+            <span class="escalation-meter-count">{{ project.order }} / 3</span>
+          </div>
+          <dl class="escalation-dl mt-4 flex-1">
+            <dt class="label">If it's wrong</dt>
+            <dd class="text-sm text-muted mt-1 mb-3">{{ project.consequence }}</dd>
+            <dt class="label">So it can't</dt>
+            <dd class="text-sm text-muted mt-1">{{ project.safeguard }}</dd>
+          </dl>
+          {% if is_current and current_metric %}
+          <p class="escalation-metric mt-4 pt-4 text-sm">
+            <strong>{{ current_metric.value }}</strong> {{ current_metric.label }}
+          </p>
+          {% else %}
+          <p class="escalation-metric mt-4 pt-4 text-sm text-muted">Visit site <span aria-hidden="true">&#8599;</span></p>
+          {% endif %}
+        </div>
+      </a>
+    </li>
+    {% endfor %}
+  </ul>
+</section>

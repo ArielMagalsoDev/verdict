@@ -1,6 +1,114 @@
-{% extends "base.html" %}{% block title %}Guided demo — Verdict{% endblock %}{% block content %}
-<section class="page-hero blueprint"><div class="wrap"><p class="eyebrow">// GUIDED DEMO</p><h1>Pick a lead. Watch it decide.</h1><p class="lede">Four fictional leads, engineered to land on Verdict's four responsible paths. The worker runs the real persisted pipeline.</p></div></section>
-<section class="wrap section"><div class="scenario-grid">{% for key,s in scenarios.items() %}<button class="card scenario" data-scenario="{{ key }}"><span>0{{ loop.index }}</span><h3>{{ s.title }}</h3><p>{{ s.blurb }}</p><small>RUN PIPELINE →</small></button>{% endfor %}</div>
-<div id="progress" class="progress hidden"><div class="spinner"></div><div><b>Running the pipeline</b><p>Researching, verifying, and applying deterministic rules…</p></div></div><div id="result" class="result hidden" aria-live="polite"></div>
-<div class="custom card"><p class="eyebrow">// OR BRING YOUR OWN LEAD</p><h2>Submit an inbound lead</h2><form id="lead-form"><div class="form-grid"><label>First name<input name="first_name" required></label><label>Last name<input name="last_name" required></label><label>Work email<input name="work_email" type="email" required></label><label>Company<input name="company_name" required></label><label>Website<input name="website"></label><label>Country<input name="country"></label></div><label>What do you need?<textarea name="message" required minlength="10" maxlength="2000"></textarea></label><label class="consent"><input type="checkbox" name="consent_to_contact" required> I consent to be contacted for this fictional demo.</label><button class="button" type="submit">Qualify this lead →</button></form></div></section>
+{% extends "base.html" %}
+{% block content %}
+
+<section class="blueprint-grid relative overflow-hidden">
+  <div aria-hidden="true">
+    <span class="pixel-block" style="top:0; right:96px; width:72px; height:36px;"></span>
+    <span class="pixel-block" style="top:36px; right:24px; width:36px; height:36px;"></span>
+  </div>
+  <div class="container-5xl" style="padding-top:3rem; padding-bottom:2.5rem;">
+    <p class="label mb-4">//GUIDED DEMO</p>
+    <h1 class="display-hero text-4xl sm:text-6xl">Pick a lead. Watch it decide.</h1>
+    <p class="text-muted mt-6 max-w-2xl">
+      Four fictional leads, each engineered to land on a different one of Verdict's four
+      responsible outcomes. Pick one — this runs the real pipeline against seeded fixture data,
+      not a script.
+    </p>
+  </div>
+</section>
+
+<div class="container-5xl" style="padding-bottom:3.5rem;">
+
+  <div class="grid-responsive mt-8" style="grid-template-columns: repeat(4, 1fr);" id="scenario-buttons">
+    {% for s in scenarios %}
+    <button type="button" class="card card-lift p-4 text-left relative scenario-btn" data-key="{{ s.key }}" style="position:relative; border:1px solid var(--line); background:var(--card);">
+      <span class="ghost-num" aria-hidden="true" style="position:absolute; top:0.5rem; right:0.75rem; font-size:1.75rem;">0{{ loop.index }}</span>
+      <div class="label label-ink">{{ s.title }}</div>
+      <div class="text-sm text-muted mt-1_5 leading-snug">{{ s.blurb }}</div>
+      <div class="text-xs mt-2 font-semibold scenario-status" style="color: var(--signal); display:none;">Running pipeline&hellip;</div>
+    </button>
+    {% endfor %}
+  </div>
+
+  {% if turnstile_site_key %}
+  <div class="mt-6">
+    <p class="label mb-2">//BOT CHECK</p>
+    <div class="card p-3" style="display:inline-flex;">
+      <div id="turnstile-widget" data-sitekey="{{ turnstile_site_key }}"></div>
+    </div>
+  </div>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  {% endif %}
+
+  <div class="mt-10 pt-8 border-t">
+    <p class="label mb-2">//OR BRING YOUR OWN LEAD</p>
+    <p class="text-sm text-muted max-w-2xl mb-4 leading-relaxed">
+      Write your own lead and Verdict runs the exact same live pipeline on it — no script.
+      Most real companies come back <strong>insufficient evidence</strong>, because Verdict only
+      has seeded research for a small set of companies (see the architecture page) — that
+      refusal is the evidence-sufficiency gate working as designed, not a broken demo. Click one
+      of these first to also see a fully scored run with your own words:
+    </p>
+    <div class="flex flex-wrap gap-2 mb-6" id="autofill-chips">
+      <button type="button" class="btn-outline px-3 py-1_5 text-xs autofill-btn" data-company="Harborline Clinics" data-website="harborlineclinics.com" data-country="United States">Try Harborline Clinics</button>
+      <button type="button" class="btn-outline px-3 py-1_5 text-xs autofill-btn" data-company="Meridian Fleet Services" data-website="meridianfleetservices.ca" data-country="Canada">Try Meridian Fleet Services</button>
+      <button type="button" class="btn-outline px-3 py-1_5 text-xs autofill-btn" data-company="Northbridge Facilities Group" data-website="northbridgefacilities.co.uk" data-country="United Kingdom">Try Northbridge Facilities Group</button>
+    </div>
+
+    <form class="card p-5" id="custom-lead-form" style="display:flex; flex-direction:column; gap:1rem;">
+      <div class="grid-responsive" style="grid-template-columns: repeat(2, 1fr);">
+        <label class="text-sm" style="display:block;">
+          <span class="label slash-label label-ink">First name</span>
+          <input type="text" name="first_name" required class="w-full mt-1 p-2 rounded-lg border text-sm" />
+        </label>
+        <label class="text-sm" style="display:block;">
+          <span class="label slash-label label-ink">Last name</span>
+          <input type="text" name="last_name" required class="w-full mt-1 p-2 rounded-lg border text-sm" />
+        </label>
+        <label class="text-sm" style="display:block;">
+          <span class="label slash-label label-ink">Work email</span>
+          <input type="email" name="work_email" required class="w-full mt-1 p-2 rounded-lg border text-sm" />
+        </label>
+        <label class="text-sm" style="display:block;">
+          <span class="label slash-label label-ink">Company name</span>
+          <input type="text" name="company_name" required class="w-full mt-1 p-2 rounded-lg border text-sm" />
+        </label>
+        <label class="text-sm" style="display:block;">
+          <span class="label slash-label label-ink">Website <span class="text-xs" style="text-transform:none;">(optional)</span></span>
+          <input type="text" name="website" placeholder="yourcompany.com" class="w-full mt-1 p-2 rounded-lg border text-sm" />
+        </label>
+        <label class="text-sm" style="display:block;">
+          <span class="label slash-label label-ink">Country <span class="text-xs" style="text-transform:none;">(optional)</span></span>
+          <input type="text" name="country" placeholder="United States" class="w-full mt-1 p-2 rounded-lg border text-sm" />
+        </label>
+      </div>
+
+      <label class="text-sm" style="display:block;">
+        <span class="label slash-label label-ink">Message</span>
+        <textarea name="message" required rows="3" maxlength="500" placeholder="What are you hoping Northstar Ops could help with?" class="w-full mt-1 p-2 rounded-lg border text-sm"></textarea>
+        <span class="text-xs text-muted"><span id="message-count">0</span>/500</span>
+      </label>
+
+      <label class="flex items-start gap-2 text-xs text-muted leading-relaxed">
+        <input required type="checkbox" name="consent" style="margin-top:0.15rem;" />
+        I consent to Verdict processing this fictional submission to run the demo pipeline. This
+        spends real (small, capped) demo budget. Sending and CRM writes stay simulated either way.
+      </label>
+
+      <button type="submit" class="btn-dark-icon" id="custom-submit-btn" disabled>
+        <span class="icon-square" aria-hidden="true">&rarr;</span>
+        <span id="custom-submit-label">Run my lead through Verdict</span>
+      </button>
+    </form>
+  </div>
+
+  <div id="result-anchor" style="scroll-margin-top: 5rem;">
+    <div id="error-box" style="display:none;"></div>
+    <div id="result-box" style="display:none; margin-top:2.5rem;"></div>
+  </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/demo.js"></script>
 {% endblock %}

@@ -1,1 +1,116 @@
-{% extends "base.html" %}{% block title %}Operations — Verdict{% endblock %}{% block content %}<section class="page-hero blueprint"><div class="wrap"><p class="eyebrow">// LIVE OPERATIONS</p><h1>Every run leaves receipts.</h1></div></section><section class="wrap section"><div class="metric-grid"><div class="metric"><span>Completed</span><strong>{{ counts.get('completed',0) }}</strong></div><div class="metric"><span>Queued</span><strong>{{ counts.get('queued',0) }}</strong></div><div class="metric"><span>Processing</span><strong>{{ counts.get('processing',0) }}</strong></div><div class="metric"><span>Failed</span><strong>{{ counts.get('failed',0) }}</strong></div></div><div class="card table-card"><p class="eyebrow">// RECENT WORKFLOWS</p><table><thead><tr><th>Lead</th><th>Company</th><th>Status</th><th>Outcome</th><th>Created</th></tr></thead><tbody>{% for lead in recent %}<tr><td>{{ lead.payload.first_name }} {{ lead.payload.last_name }}</td><td>{{ lead.payload.company_name }}</td><td><span class="badge">{{ lead.status }}</span></td><td>{{ lead.outcome or '—' }}</td><td>{{ lead.created_at.strftime('%Y-%m-%d %H:%M') }}</td></tr>{% else %}<tr><td colspan="5">No workflow runs yet.</td></tr>{% endfor %}</tbody></table></div></section>{% endblock %}
+{% extends "base.html" %}
+{% block content %}
+
+{% set band_label = {"sales_ready":"Sales-ready","needs_review":"Needs review","nurture":"Nurture","disqualified":"Disqualified","insufficient_evidence":"Insufficient evidence"} %}
+{% set match_label = {"confident":"Confident match","possible":"Possible match","none":"New (no match)"} %}
+
+<section class="blueprint-grid relative overflow-hidden">
+  <div aria-hidden="true">
+    <span class="pixel-block" style="top:0; right:96px; width:72px; height:36px;"></span>
+    <span class="pixel-block" style="top:36px; right:24px; width:36px; height:36px;"></span>
+  </div>
+  <div class="container-5xl" style="padding-top:4rem; padding-bottom:3.5rem;">
+    <div class="reveal">
+      <p class="label mb-4">//OPERATIONS</p>
+      <h1 class="display-hero text-4xl sm:text-6xl">Live, not staged.</h1>
+      <p class="text-muted mt-6 max-w-2xl">
+        Every number below is read live from the same Postgres tables the pipeline writes to
+        while processing real requests — nothing on this page is mocked or hand-entered. Small
+        numbers are expected: this is a portfolio demo, not a production tenant with thousands
+        of leads/day.
+      </p>
+    </div>
+  </div>
+</section>
+
+<div class="container-5xl" style="padding-bottom:3.5rem;">
+
+  <div class="grid-responsive mt-10" style="grid-template-columns: repeat(4, 1fr);">
+    <div class="card card-lift p-5"><div class="stat-num">{{ total_leads }}</div><div class="text-sm text-muted mt-1">Leads processed</div></div>
+    <div class="card card-lift p-5"><div class="stat-num">{{ (completion_rate ~ "%") if completion_rate is not none else "—" }}</div><div class="text-sm text-muted mt-1">Completion rate</div></div>
+    <div class="card card-lift p-5"><div class="stat-num">${{ "%.3f" | format(spend_today) }}</div><div class="text-sm text-muted mt-1">Metered spend today (real)</div></div>
+    <div class="card card-lift p-5"><div class="stat-num">${{ "%.3f" | format(estimated_cost_per_lead) }}</div><div class="text-sm text-muted mt-1">Estimated cost / lead</div></div>
+  </div>
+
+  <h2 class="label mt-12 mb-3">//ALERTS</h2>
+  <div style="display:flex; flex-direction:column; gap:0.75rem;">
+    {% for a in alerts %}
+    {% set cls = "badge-outcome-qualified" if a.severity == "ok" else ("badge-outcome-insufficient_evidence" if a.severity == "warn" else "badge-outcome-disqualified") %}
+    <div class="card p-4 flex items-start gap-3">
+      <span class="pill {{ cls }} shrink-0">{{ "OK" if a.severity == "ok" else ("NOTE" if a.severity == "warn" else "ALERT") }}</span>
+      <div class="min-w-0"><p class="text-sm font-semibold">{{ a.title }}</p><p class="text-sm text-muted" style="margin-top:0.1rem;">{{ a.detail }}</p></div>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% if stuck %}
+  <div class="card p-5 mt-3">
+    <h3 class="label mb-3">Stuck leads</h3>
+    <ul class="list-none font-display text-sm" style="display:flex; flex-direction:column; gap:0.25rem;">
+      {% for w in stuck %}
+      <li>{{ w.company_name }} &mdash; {{ w.minutes_stuck }} min (since {{ w.created_at.strftime("%Y-%m-%d %H:%M") }})</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  <h2 class="label mt-12 mb-3">//BREAKDOWN</h2>
+  <div class="grid-responsive" style="grid-template-columns: 1fr 1fr;">
+    {% for title, counts, labels in [
+      ("Leads by status", lead_status_counts, {}),
+      ("Leads by qualification band", band_counts, band_label),
+      ("Identity resolution outcomes", identity_counts, match_label),
+      ("Outreach draft decisions", draft_counts, {}),
+    ] %}
+    <div class="card p-5">
+      <h3 class="label mb-3">{{ title }}</h3>
+      {% if not counts %}
+      <p class="text-sm text-muted">No data yet.</p>
+      {% else %}
+      {% set total = counts.values() | sum %}
+      <ul class="list-none" style="display:flex; flex-direction:column; gap:0.35rem;">
+        {% for key, n in counts | dictsort(by="value", reverse=true) %}
+        <li class="flex items-center justify-between text-sm">
+          <span>{{ labels.get(key, key) }}</span>
+          <span class="font-display font-bold">{{ n }} <span class="text-muted" style="font-family: var(--font-sans); font-weight:400; font-size:0.75rem;">({{ ((n / total) * 100) | round(0) | int }}%)</span></span>
+        </li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+
+  <h2 class="label mt-12 mb-3">//LATENCY PER STAGE (real, from audit_events)</h2>
+  <div class="card p-5">
+    {% if not stage_latency %}
+    <p class="text-sm text-muted">No completed stages recorded yet.</p>
+    {% else %}
+    <table class="w-full text-sm" style="border-collapse:collapse;">
+      <thead><tr class="text-left text-muted"><th class="font-normal" style="padding-bottom:0.5rem;">Stage</th><th class="font-normal text-right" style="padding-bottom:0.5rem;">Runs</th><th class="font-normal text-right" style="padding-bottom:0.5rem;">Avg duration</th></tr></thead>
+      <tbody>
+        {% for s in stage_latency %}
+        <tr class="border-t">
+          <td class="py-2 font-display">{{ s.event_type }}</td>
+          <td class="py-2 text-right">{{ s.count }}</td>
+          <td class="py-2 text-right font-display">{{ ("%.2fs" | format(s.avg_ms / 1000)) if s.avg_ms >= 1000 else (s.avg_ms ~ "ms") }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+  </div>
+
+  <div class="card p-5 mt-8">
+    <h3 class="label mb-2">Scope note</h3>
+    <p class="text-sm text-muted leading-relaxed">
+      This is the v1 scope from the original spec's section 15: real audit-event data plus 3
+      alerts (stuck workflows, duplicate-write prevention, unsupported-fact rate). CRM API
+      error tracking, qualification drift over time, and operational controls (pause outbound,
+      replay dead-lettered workflows) are documented as design, not built — an honest cut
+      line, not a silent shortfall.
+    </p>
+  </div>
+</div>
+
+{% endblock %}

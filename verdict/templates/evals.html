@@ -1,1 +1,108 @@
-{% extends "base.html" %}{% block title %}Evaluations — Verdict{% endblock %}{% block content %}<section class="page-hero blueprint"><div class="wrap"><p class="eyebrow">// EVALUATION</p><h1>Reliability, measured.</h1><p class="lede">The suite keeps development examples separate from held-out cases and treats false scores as first-class failures.</p></div></section><section class="wrap section"><div class="metric-grid"><div class="metric"><span>Guided scenarios</span><strong>4</strong></div><div class="metric"><span>Outcome classes</span><strong>4</strong></div><div class="metric"><span>False-score tolerance</span><strong>0</strong></div><div class="metric"><span>CRM writes without approval</span><strong>0</strong></div></div><div class="card prose"><h2>Acceptance gates</h2><ul class="checks ink"><li>Thin evidence always produces a null score</li><li>Prompt-injection text cannot become a fact or rule</li><li>Webhook replay cannot duplicate a lead or CRM write</li><li>Unsupported draft claims block approval</li></ul></div></section>{% endblock %}
+{% extends "base.html" %}
+{% block content %}
+
+<section class="blueprint-grid relative overflow-hidden">
+  <div aria-hidden="true">
+    <span class="pixel-block" style="top:0; right:96px; width:72px; height:36px;"></span>
+    <span class="pixel-block" style="top:36px; right:24px; width:36px; height:36px;"></span>
+  </div>
+  <div class="container-4xl" style="padding-top:4rem; padding-bottom:3.5rem;">
+    <div class="reveal">
+      <p class="label mb-4">//EVALS</p>
+      <h1 class="display-hero text-4xl sm:text-6xl">Reliability evidence</h1>
+      <p class="text-base text-muted mt-6 max-w-2xl">
+        A scorecard, published as-is. 60 cases test the real pipeline across all seven
+        categories in the project spec, at the spec's own target counts. 18 were tuned
+        directly against while building the rule engine; the other 42 were designed from the
+        scoring spec and run once, held out from tuning. Both numbers are shown below, not
+        blended into one.
+      </p>
+    </div>
+  </div>
+</section>
+
+<div class="container-4xl" style="padding-bottom:4rem;">
+{% if not run %}
+  <div class="card p-6 mt-10">
+    <p class="text-sm text-muted">
+      No eval run recorded yet. Run <code>python -m verdict.evals</code> locally to produce a scorecard —
+      it writes to the same database this page reads from.
+    </p>
+  </div>
+{% else %}
+  <div class="grid-responsive mt-10" style="grid-template-columns: repeat(4, 1fr);">
+    <div class="card card-lift p-6">
+      <div class="stat-num">{{ (run.accuracy * 100) | round(0) | int }}%</div>
+      <div class="text-sm text-muted mt-2">Accuracy across {{ run.total_cases }} cases</div>
+    </div>
+    <div class="card card-lift p-6">
+      <div class="stat-num">{{ run.false_score_count }}</div>
+      <div class="text-sm text-muted mt-2">False-score rate — a number emitted on evidence that should have refused</div>
+    </div>
+    <div class="card card-lift p-6">
+      <div class="stat-num">{{ run.false_refusal_count }}</div>
+      <div class="text-sm text-muted mt-2">False-refusal rate — a refusal on evidence that should have scored</div>
+    </div>
+    <div class="card card-lift p-6">
+      <div class="stat-num">{{ (run.mean_latency_ms / 1000) | round(1) if run.mean_latency_ms else "—" }}{{ "s" if run.mean_latency_ms }}</div>
+      <div class="text-sm text-muted mt-2">Mean latency per case{% if run.total_cost_usd is not none %} &middot; ~${{ "%.2f" | format(run.total_cost_usd) }} total{% endif %}</div>
+    </div>
+  </div>
+
+  <h2 class="label mt-12 mb-4">//DEV SET VS. HELD-OUT SET</h2>
+  <div class="grid-responsive" style="grid-template-columns: repeat(2, 1fr);">
+    {% for row in run.category_breakdown %}
+    {% if row.category == "split:dev" or row.category == "split:heldout" %}
+    <div class="card p-6">
+      <div class="stat-num">{{ (row.accuracy * 100) | round(0) | int }}%</div>
+      <div class="text-sm text-muted mt-2">
+        {{ "Dev set (tuned against)" if row.category == "split:dev" else "Held-out set (not tuned against)" }}
+        &middot; {{ row.passed }}/{{ row.total }} cases
+      </div>
+    </div>
+    {% endif %}
+    {% endfor %}
+  </div>
+
+  <h2 class="label mt-12 mb-4">//BY CATEGORY</h2>
+  <div class="card overflow-x-auto">
+    <table class="w-full text-sm" style="border-collapse:collapse;">
+      <thead>
+        <tr class="text-left border-b">
+          <th class="p-3 font-semibold">Category</th>
+          <th class="p-3 font-semibold">Cases</th>
+          <th class="p-3 font-semibold">Passed</th>
+          <th class="p-3 font-semibold">Accuracy</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in run.category_breakdown if not row.category.startswith("split:") %}
+        <tr class="border-b">
+          <td class="p-3">{{ category_label.get(row.category, row.category) }}</td>
+          <td class="p-3 text-muted">{{ row.total }}</td>
+          <td class="p-3 text-muted">{{ row.passed }}</td>
+          <td class="p-3"><span class="pill {{ 'badge-outcome-qualified' if row.accuracy == 1 else 'badge-outcome-insufficient_evidence' }}">{{ (row.accuracy * 100) | round(0) | int }}%</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if run.failures %}
+  <h2 class="label mt-12 mb-4">//FAILURES — SHOWN, NOT HIDDEN</h2>
+  <div class="card p-5" style="display:flex; flex-direction:column; gap:0.75rem;">
+    {% for f in run.failures %}
+    <div class="text-sm">
+      <span class="font-semibold">{{ f.id }}</span>
+      <span class="text-muted">({{ category_label.get(f.category, f.category) }})</span>
+      <p class="text-muted" style="margin-top:0.1rem;">{{ f.detail }}</p>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <p class="text-xs text-muted mt-8">Last run: {{ run.run_at.strftime("%Y-%m-%d %H:%M UTC") }} &middot; eval set {{ run.eval_set_version }} &middot; model: {{ run.model }}</p>
+{% endif %}
+</div>
+
+{% endblock %}

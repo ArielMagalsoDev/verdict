@@ -1,1 +1,83 @@
-{% extends "base.html" %}{% block title %}Architecture — Verdict{% endblock %}{% block content %}<section class="page-hero blueprint"><div class="wrap"><p class="eyebrow">// SYSTEM DESIGN</p><h1>Evidence first.<br>Actions second.</h1><p class="lede">A durable Python workflow where model output is evidence, never business authority.</p></div></section><section class="wrap section"><div class="pipeline">{% for n,t,d in [('01','Validate','Pydantic rejects malformed input.'),('02','Resolve identity','Exact keys before model spend.'),('03','Classify','Claude labels intent with a strict schema.'),('04','Screen sources','Instruction-shaped content is flagged.'),('05','Extract facts','Every fact requires a source quote.'),('06','Verify','Unsupported claims are rejected.'),('07','Evidence gate','Thin evidence produces no score.'),('08','Score','Python rules calculate the result.'),('09','Draft','Claude writes only from grounded data.'),('10','Propose CRM diff','Changes are persisted but not applied.'),('11','Human approval','An authenticated reviewer applies once.') ] %}<article><span>{{ n }}</span><div><h3>{{ t }}</h3><p>{{ d }}</p></div></article>{% endfor %}</div></section>{% endblock %}
+{% extends "base.html" %}
+{% block content %}
+
+<section class="blueprint-grid relative overflow-hidden">
+  <div aria-hidden="true">
+    <span class="pixel-block" style="top:0; right:96px; width:72px; height:36px;"></span>
+    <span class="pixel-block" style="top:36px; right:24px; width:36px; height:36px;"></span>
+  </div>
+  <div class="container-5xl" style="padding-top:4rem; padding-bottom:3.5rem;">
+    <div class="reveal">
+      <p class="label mb-4">//ARCHITECTURE</p>
+      <h1 class="display-hero text-4xl sm:text-6xl">How Verdict works</h1>
+      <p class="text-muted mt-6 max-w-2xl text-lg">
+        Eleven stages, run in this order for a reason: identity resolution before spend,
+        extraction before verification, verification before scoring, scoring before a draft is
+        ever written.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="container-5xl py-14">
+  <div class="grid-responsive" style="grid-template-columns: 1fr 1fr; gap: 1.25rem;">
+    {% for s in [
+      {"n":"00","title":"Validate + idempotency","desc":"Ordinary code. Required fields, email/domain normalization. Replaying a submission_id returns the existing result — never reprocesses."},
+      {"n":"01","title":"Identity resolution","desc":"Runs BEFORE enrichment/scoring, deliberately. Exact email or domain match only counts as \"confident\" — name similarity, even a perfect score, never auto-merges."},
+      {"n":"02","title":"Classify message","desc":"Claude labels the message into approved categories (deterministic keyword fallback when no API key is set). Vendor pitches, job applications, and student research hard-disqualify here, before any research spend."},
+      {"n":"03","title":"Find research source","desc":"Looks up a domain in the seeded fixture corpus. An ambiguous or missing identity means no safe source to pick — enrichment correctly returns nothing rather than guessing."},
+      {"n":"04","title":"Extract facts","desc":"Claude reads the source page and extracts only explicitly stated facts into a fixed field schema, with a verbatim supporting quote for each. There is no field for a score, a discount, or an instruction — structurally, nothing else can land here."},
+      {"n":"05","title":"Verify facts","desc":"Two independent checks per fact: a deterministic quote-in-source substring check (free, catches fabricated quotes), then a batched verification pass judging entailment and flagging quotes that read as instructions rather than facts. Only what survives both becomes \"verified\"."},
+      {"n":"06","title":"Evidence-sufficiency gate","desc":"Ordinary code. Counts resolved ICP criteria against a floor. Below the floor: no score is ever computed — the lead returns the specific questions that would unblock it."},
+      {"n":"07","title":"Score (if the gate is open)","desc":"Deterministic points-based scoring across 7 criteria, each with cited evidence. A veto on B2B-fit or region disqualifies regardless of the numeric total."},
+      {"n":"08","title":"Propose CRM change set","desc":"A diff, never an unreviewed write. Possible identity matches propose nothing — a human resolves the merge. Confident matches propose an update; new leads propose a create."},
+      {"n":"09","title":"Draft outreach (gated)","desc":"Only for qualified bands, and only using the lead's own message plus verified facts. Every claim the draft makes is independently re-verified against that same grounding text — never trusted from the drafting call's self-report."},
+      {"n":"10","title":"Audit + jobs","desc":"Every stage above writes a started/completed/failed audit event with duration, committed immediately so a poller sees stages land one at a time. A Postgres jobs table tracks attempts — the durable queue, not an external service."},
+    ] %}
+    <div class="reveal" style="--reveal-delay: {{ (loop.index0 % 2) * 80 }}ms;">
+      <div class="card card-lift p-6 h-full">
+        <div class="flex items-start justify-between gap-4">
+          <h3 class="font-semibold text-lg mt-1">{{ s.title }}</h3>
+          <span class="ghost-num shrink-0">{{ s.n }}</span>
+        </div>
+        <p class="text-sm text-muted mt-2 leading-relaxed">{{ s.desc }}</p>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="section-dark">
+  <div class="container-5xl py-16">
+    <div class="reveal">
+      <p class="label label-lime mb-3">//THE STACK</p>
+      <h2 class="heading-2 text-3xl sm:text-5xl max-w-2xl">Boring where it should be boring</h2>
+    </div>
+    <div class="mt-8">
+      {% for item in [
+        "FastAPI + Jinja2 + SQLAlchemy, PostgreSQL (Docker Compose locally)",
+        "Claude Haiku for every model call, temperature pinned to 0",
+        "Durable job queue: a Postgres table with attempts/backoff, drained by a real worker process — no external queue service",
+        "Enrichment reads a seeded fictional “mini-web”, not the live internet — deterministic, $0, every citation a real in-app URL",
+        "Rate limiting + a race-safe daily spend cap (row-level locking, not read-then-write)",
+      ] %}
+      <div class="reveal" style="--reveal-delay: {{ loop.index0 * 60 }}ms;">
+        <div class="compare-row"><span class="compare-mark yes" aria-hidden="true">&#10003;</span><span>{{ item }}</span></div>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="card p-5 mt-8" style="background: var(--on-dark-card); border-color: var(--on-dark-line);">
+      <h3 class="label mb-2" style="color:#f9fafb;">Extension point: workflow automation</h3>
+      <p class="text-sm text-muted leading-relaxed">
+        A sales-ready qualification can fire a webhook to an external automation platform
+        (n8n) to notify a rep, enrich a CRM record, or kick off a sequence — the pipeline
+        already exposes a fire-and-forget hook (<code>verdict/domain/notify.py</code>) for exactly this,
+        bounded and non-blocking so a downstream outage never affects a demo visitor.
+        Deliberately not wired to a live workflow in the public demo — that stays inactive
+        by design, not by omission.
+      </p>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

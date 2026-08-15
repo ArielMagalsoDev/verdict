@@ -1,2 +1,37 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{% block title %}Verdict — AI lead qualification{% endblock %}</title><meta name="description" content="Evidence-gated AI lead qualification with approval-controlled CRM writes."><link rel="stylesheet" href="{{ url_for('static', path='app.css') }}"><script defer src="{{ url_for('static', path='app.js') }}"></script></head>
-<body><header class="site-header"><a href="/" class="wordmark">Verdict</a><nav><a href="/#about">About</a><a href="/demo" class="{{ 'active' if page=='demo' }}">Demo</a><a href="/architecture" class="{{ 'active' if page=='architecture' }}">Architecture</a><a href="/evals" class="{{ 'active' if page=='evals' }}">Evals</a><a href="/operations" class="{{ 'active' if page=='operations' }}">Ops</a><a href="https://github.com/ArielMagalsoDev/verdict">Source</a></nav><a class="button small" href="/demo">Run demo</a></header><main>{% block content %}{% endblock %}</main><footer><div><b>Verdict.</b><p>AI lead qualification that won't guess.</p></div><div class="footer-links"><a href="/demo">Live demo</a><a href="/architecture">System design</a><a href="/evals">Evaluation</a></div><p>Built by Ariel Magalso · Fictional data only</p></footer></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Verdict — Reliable AI automation by Ariel Magalso</title>
+  <meta name="description" content="A live AI lead-qualification system designed and built by AI Engineer Ariel Magalso, with evidence gates, deterministic scoring, evals, and operations monitoring." />
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Urbanist:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/globals.css" />
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <div style="background:#121212;">
+    <p class="label text-center py-2 px-4" style="color: rgba(249,250,251,0.7); margin:0;">
+      <span class="chevron-pulse label-lime mr-3" aria-hidden="true">&rsaquo;&rsaquo;&rsaquo;</span>
+      SOLO BUILD BY ARIEL MAGALSO &middot; <span class="label-lime">LIVE PIPELINE — NOT A SCRIPT</span>
+      <span class="chevron-pulse label-lime ml-3" aria-hidden="true">&lsaquo;&lsaquo;&lsaquo;</span>
+    </p>
+  </div>
+
+  {% include "partials/header.html" %}
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  {% include "partials/footer.html" %}
+
+  <script src="/static/js/reveal.js"></script>
+  <script src="/static/js/countup.js"></script>
+  <script src="/static/js/nav.js"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

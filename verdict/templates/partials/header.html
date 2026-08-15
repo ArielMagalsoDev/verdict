@@ -1,0 +1,49 @@
+<header class="header-wrap" style="position: sticky; top: 0; z-index: 40; padding: 0.75rem 0.75rem 0;">
+  <div class="header-card container-6xl" style="border-radius: 14px; padding-left: 1.25rem; padding-right: 1.25rem; height: 4rem; display:flex; align-items:center; justify-content:space-between;">
+    <span class="crop-mark" style="top:-3px;left:-3px;" aria-hidden="true"></span>
+    <span class="crop-mark" style="top:-3px;right:-3px;" aria-hidden="true"></span>
+    <span class="crop-mark" style="bottom:-3px;left:-3px;" aria-hidden="true"></span>
+    <span class="crop-mark" style="bottom:-3px;right:-3px;" aria-hidden="true"></span>
+
+    <a href="/" class="font-display font-bold text-lg" style="color: var(--ink); text-decoration:none;">
+      Verdict<span style="color: var(--signal);">.</span>
+    </a>
+
+    <nav class="max-sm:hidden flex items-center gap-6">
+      <a href="/#about" class="label label-ink hover-opacity">About</a>
+      <a href="/demo" class="label label-ink hover-opacity{{ ' ' if page != 'demo' else '' }}">Demo</a>
+      <a href="/architecture" class="label label-ink hover-opacity">Architecture</a>
+      <a href="/evals" class="label label-ink hover-opacity">Evals</a>
+      <a href="/operations" class="label label-ink hover-opacity">Ops</a>
+      <a href="https://github.com/ArielMagalsoDev/verdict-python" class="label label-ink hover-opacity" target="_blank" rel="noopener noreferrer">Source</a>
+      <a href="/#escalation" class="text-xs text-muted hover-opacity">2 of 3 &middot; cost of being wrong &uarr;</a>
+      <a href="/demo" class="btn-signal px-5 py-2_5">Run demo</a>
+    </nav>
+
+    <div class="flex sm:hidden items-center gap-3" style="display:none;" id="mobile-nav-toggle-wrap">
+      <a href="/demo" class="btn-signal px-4 py-2">Run demo</a>
+      <button type="button" id="nav-hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-nav-panel"
+        style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; width:44px; height:44px; background:none; border:none;">
+        <span aria-hidden="true" style="display:block;width:20px;height:2px;background:var(--ink);"></span>
+        <span aria-hidden="true" style="display:block;width:20px;height:2px;background:var(--ink);"></span>
+        <span aria-hidden="true" style="display:block;width:20px;height:2px;background:var(--ink);"></span>
+      </button>
+    </div>
+  </div>
+
+  <nav id="mobile-nav-panel" class="container-6xl card p-2" style="display:none; margin-top:0.5rem; flex-direction:column;">
+    <a href="/#about" class="label label-ink px-3 py-3 rounded-lg hover-opacity">About</a>
+    <a href="/demo" class="label label-ink px-3 py-3 rounded-lg hover-opacity">Demo</a>
+    <a href="/architecture" class="label label-ink px-3 py-3 rounded-lg hover-opacity">Architecture</a>
+    <a href="/evals" class="label label-ink px-3 py-3 rounded-lg hover-opacity">Evals</a>
+    <a href="/operations" class="label label-ink px-3 py-3 rounded-lg hover-opacity">Ops</a>
+    <a href="https://github.com/ArielMagalsoDev/verdict-python" class="label label-ink px-3 py-3 rounded-lg hover-opacity" target="_blank" rel="noopener noreferrer">Source</a>
+  </nav>
+</header>
+
+<style>
+  @media (max-width: 639px) {
+    #mobile-nav-toggle-wrap { display: flex !important; }
+    .header-card nav.max-sm\:hidden { display: none !important; }
+  }
+</style>

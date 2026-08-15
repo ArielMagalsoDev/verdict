@@ -1,5 +1,395 @@
-{% extends "base.html" %}{% block content %}
-<section class="hero blueprint"><div class="wrap hero-grid"><div><p class="eyebrow">// AI LEAD QUALIFICATION · CRM AUTOMATION</p><h1>AI qualification<br>that <em>won't guess.</em></h1><p class="lede">Verdict turns messy inbound leads into researched, qualified, correctly routed CRM records—while refusing to score when the evidence is thin.</p><div class="actions"><a class="button" href="/demo">Run the guided demo →</a><a class="text-link" href="/architecture">Explore architecture</a></div></div><div class="terminal-card"><div class="terminal-top"><span></span><span></span><span></span><code>workflow_7F2A</code></div><div class="terminal-body"><p><i>01</i> identity_resolution <b>✓</b></p><p><i>02</i> source_screening <b>✓</b></p><p><i>03</i> fact_verification <b>✓</b></p><p><i>04</i> evidence_gate <b>✓</b></p><hr><p class="signal">OUTCOME / QUALIFIED</p><strong>SCORE 90</strong><small>6 criteria backed by evidence</small></div></div></div></section>
-<section class="wrap section"><p class="eyebrow">// FOUR RESPONSIBLE OUTCOMES</p><h2>Every lead leaves with a defensible answer.</h2><div class="four-grid"><article class="card"><span>01</span><h3>Qualified</h3><p>Enough verified evidence, meets the ICP, and routes to a person.</p></article><article class="card"><span>02</span><h3>Insufficient evidence</h3><p>No number is emitted. Verdict returns the questions that unblock scoring.</p></article><article class="card"><span>03</span><h3>Disqualified</h3><p>A clear reason is recorded without wasting sales time.</p></article><article class="card"><span>04</span><h3>Duplicate review</h3><p>Activity attaches to an existing record—never a silent duplicate.</p></article></div></section>
-<section class="dark-section"><div class="wrap split"><div><p class="eyebrow pale">// FAILURE THESIS</p><h2>An LLM asked to score leads scores everything 78.</h2></div><div><p>Verdict separates model judgment from business authority. Claude extracts and classifies. Deterministic Python rules score. PostgreSQL records every decision. Humans approve CRM writes.</p><ul class="checks"><li>Schema-constrained Claude output</li><li>Verbatim evidence and independent verification</li><li>Evidence sufficiency before scoring</li><li>Propose-then-apply CRM changes</li></ul></div></div></section>
+{% extends "base.html" %}
+{% block content %}
+
+<!-- HERO -->
+<section class="blueprint-grid relative overflow-hidden">
+  <div aria-hidden="true">
+    <span class="pixel-block" style="top:0; left:96px; width:96px; height:48px;"></span>
+    <span class="pixel-block" style="top:48px; left:48px; width:48px; height:48px;"></span>
+    <span class="pixel-block" style="top:120px; left:0; width:48px; height:48px;"></span>
+  </div>
+  <div class="container-6xl" style="padding-top:5rem; padding-bottom:4rem;">
+    <div class="text-center reveal">
+      <p class="label label-ink" style="display:inline-block; border:1px solid var(--line); border-radius:999px; padding:0.25rem 1rem; background:#fff;">//ARIEL MAGALSO &middot; AI ENGINEER</p>
+    </div>
+    <div class="reveal" style="--reveal-delay:100ms;">
+      <h1 class="display-hero text-center mt-10" style="font-size: clamp(2.25rem, 6vw, 4.5rem);">It never guesses</h1>
+    </div>
+    <div class="text-center reveal" style="--reveal-delay:200ms;">
+      <p class="text-lg mt-10 max-w-2xl mx-auto">
+        Verdict is a live AI lead-qualification system: identity resolution, cited research,
+        an evidence gate, deterministic scoring, and human approval — designed and built
+        end to end by one person.
+      </p>
+      <div class="flex flex-wrap items-center justify-center gap-3 mt-9">
+        <a href="/demo" class="btn-dark-icon"><span class="icon-square" aria-hidden="true">&rarr;</span>Run the live demo</a>
+        <a href="/architecture" class="btn-white px-6 py-3_5 border">Review architecture</a>
+      </div>
+      <p class="label mt-8">No signup. Seeded fictional data. Nothing is sent.</p>
+    </div>
+  </div>
+</section>
+
+<!-- BUILT WITH -->
+<section class="border-y" style="background:#fff; padding-top:1.5rem; padding-bottom:1.5rem;" aria-label="Built with">
+  <p class="label text-center mb-4">//BUILT WITH</p>
+  <div class="stack-log">
+    {% for tech in ["Python", "FastAPI", "SQLAlchemy", "Claude API", "PostgreSQL", "Docker", "Pydantic", "Jinja2"] %}
+    <span class="stack-log-item">{{ tech }}</span>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- ABOUT + STATS -->
+<section id="about" class="container-6xl py-20" style="scroll-margin-top:6rem;">
+  <div class="reveal">
+    <p class="label mb-3">//ABOUT THIS PROJECT</p>
+    <h2 class="heading-2 text-4xl sm:text-6xl max-w-3xl">At its core: AI that knows when <em>not</em> to act</h2>
+    <p class="text-base text-muted mt-6 max-w-2xl">
+      The numbers below are measured from the live pipeline and its evaluation suite —
+      each one represents a failure mode this system was built to refuse.
+    </p>
+  </div>
+  <div class="grid-responsive mt-12" style="grid-template-columns: repeat(4, 1fr);">
+    {% for stat in [
+      {"value": "60", "label": "Labeled eval cases", "detail": "Development and held-out sets"},
+      {"value": "0", "label": "Scores on thin evidence", "detail": "The gate refuses to guess"},
+      {"value": "4", "label": "Responsible outcomes", "detail": "Never a fifth guess"},
+      {"value": "$0.01", "label": "Cost per processed lead", "detail": "Haiku + cached scenarios"},
+    ] %}
+    <div class="reveal" style="--reveal-delay: {{ loop.index0 * 80 }}ms;">
+      <div class="card card-lift p-6 h-full">
+        <div class="stat-num text-4xl countup" data-value="{{ stat.value }}">{{ stat.value }}</div>
+        <p class="font-semibold mt-3">{{ stat.label }}</p>
+        <p class="text-sm text-muted mt-1">{{ stat.detail }}</p>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- FOUR OUTCOMES -->
+<section class="container-6xl py-16">
+  <div class="reveal">
+    <p class="label mb-3">//THE FOUR OUTCOMES</p>
+    <h2 class="heading-2 text-4xl sm:text-6xl max-w-3xl">One inbox. Four responsible outcomes.</h2>
+  </div>
+  <div class="grid-responsive mt-12" style="grid-template-columns: repeat(2, 1fr); gap: 1.25rem;">
+    {% for o in [
+      {"n": "01", "icon": "&#10003;", "label": "Qualified", "badge": "badge-outcome-qualified", "desc": "Sufficient evidence, meets the ICP — assigned, drafted, ready for a rep.", "points": ["Evidence-cited score", "Territory routing", "Outreach draft for approval"]},
+      {"n": "02", "icon": "?", "label": "Insufficient evidence", "badge": "badge-outcome-insufficient_evidence", "desc": "Can't be scored responsibly — returns the exact questions that would unblock it.", "points": ["No number emitted", "Unblocking questions", "SDR verification task"]},
+      {"n": "03", "icon": "&times;", "label": "Disqualified", "badge": "badge-outcome-disqualified", "desc": "Scored, doesn't meet the ICP — reason recorded, no rep time spent.", "points": ["Explicit rule reason", "Ruleset version recorded", "Zero outreach sent"]},
+      {"n": "04", "icon": "&#8862;", "label": "Duplicate / merge review", "badge": "badge-outcome-duplicate_or_merge_review", "desc": "Matches an existing record — activity attached, never a silent duplicate.", "points": ["Identity-first matching", "Activity attached", "No duplicate records"]},
+    ] %}
+    <div class="reveal" style="--reveal-delay: {{ loop.index0 * 80 }}ms;">
+      <div class="card card-lift p-7 h-full flex flex-col">
+        <div class="flex items-start justify-between gap-4">
+          <span class="icon-chip" aria-hidden="true">{{ o.icon | safe }}</span>
+          <span class="ghost-num">{{ o.n }}</span>
+        </div>
+        <div class="mt-4"><span class="pill {{ o.badge }}">{{ o.label }}</span></div>
+        <p class="text-sm text-muted mt-4 leading-relaxed">{{ o.desc }}</p>
+        <ul class="mt-5 pt-4 border-t list-none" style="display:flex; flex-direction:column; gap:0.6rem;">
+          {% for p in o.points %}
+          <li class="flex items-center gap-2_5 text-sm"><span class="compare-mark yes" aria-hidden="true">&#10003;</span>{{ p }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- THESIS -->
+<section class="container-6xl py-16">
+  <div class="grid-responsive items-center" style="grid-template-columns: 1.1fr 0.9fr; gap: 3rem;">
+    <div class="reveal">
+      <p class="label mb-3">//THE THESIS</p>
+      <h2 class="heading-2 text-4xl" style="font-size: clamp(2rem,4vw,3.25rem);">Every automation starts with the ways AI fails</h2>
+      <p class="text-base text-muted mt-6">
+        An LLM asked to score leads scores everything a confident 78. Asked to research a
+        company it doesn't know, it invents a plausible industry. Both write straight into
+        the CRM, where fabrication becomes indistinguishable from truth. Verdict is designed
+        backwards from those failures — every safeguard exists because the naive version
+        visibly breaks without it.
+      </p>
+    </div>
+    <div class="reveal" style="--reveal-delay:120ms;">
+      <div class="card card-lift p-7">
+        <p class="label mb-1">GUIDED SCENARIO</p>
+        <p class="font-semibold text-lg">The ambiguous lead</p>
+        <p class="text-sm text-muted mt-2">&ldquo;Fieldwork Group&rdquo; resolves to three candidate companies. Verdict declines to guess.</p>
+        <div class="grid grid-cols-3 gap-3 mt-6 pt-5 border-t">
+          <div><p class="stat-num text-2xl">0</p><p class="label mt-1">Scores emitted</p></div>
+          <div><p class="stat-num text-2xl">3</p><p class="label mt-1">Unblocking questions</p></div>
+          <div><p class="stat-num text-2xl">1</p><p class="label mt-1">SDR task created</p></div>
+        </div>
+        <a href="/demo" class="btn-outline px-5 py-3 mt-6" style="display:inline-block;">Run this scenario</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PIPELINE -->
+<section class="section-dark mt-8">
+  <div class="container-6xl py-20">
+    <div class="reveal">
+      <p class="label label-lime mb-3">//THE PIPELINE</p>
+      <h2 class="heading-2 text-4xl sm:text-6xl max-w-3xl">Judgment work, staged and gated</h2>
+    </div>
+    <div class="mt-12 grid-responsive" style="grid-template-columns: repeat(4, 1fr); gap: 1.25rem;">
+      {% for step in [
+        {"n": "01", "icon": "&#128272;", "title": "Resolve & validate", "body": "Normalize the submission, resolve contact and company identity, and check for duplicates before any model spend."},
+        {"n": "02", "icon": "&#128269;", "title": "Research with citations", "body": "Enrich company facts against approved sources. Every fact carries a source link and a verified / uncertain / conflicting status."},
+        {"n": "03", "icon": "&#9878;", "title": "Gate, then score", "body": "An evidence-sufficiency gate runs first. Past the gate, deterministic ICP rules produce an explainable score — the model never picks the number."},
+        {"n": "04", "icon": "&#9998;", "title": "Approve & write", "body": "Outreach drafts and CRM changes are proposed as diffs. A human approves; writes are idempotent and fully audited."},
+      ] %}
+      <div class="reveal" style="--reveal-delay: {{ loop.index0 * 100 }}ms;">
+        <div class="card p-6 h-full">
+          <div class="flex items-center justify-between">
+            <span class="icon-chip" aria-hidden="true">{{ step.icon | safe }}</span>
+            <p class="numbering" style="color:var(--lime);">//{{ step.n }}</p>
+          </div>
+          <p class="font-semibold text-lg mt-4">{{ step.title }}</p>
+          <p class="text-sm text-muted mt-2 leading-relaxed">{{ step.body }}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="reveal" style="--reveal-delay:200ms;">
+      <a href="/architecture" class="btn-white px-6 py-3_5 mt-10" style="display:inline-block;">Review the full architecture</a>
+    </div>
+  </div>
+</section>
+
+<!-- OUTLINED WORD BAND -->
+<section class="py-14" aria-hidden="true">
+  <div class="marquee"><div class="marquee-track" style="align-items:center; gap: 1rem 2.5rem;">
+    <span class="outline-word">Traceable</span>
+    <span class="outline-word filled">Deterministic</span>
+    <span class="outline-word">Audited</span>
+    <span class="outline-word filled">Gated</span>
+  </div></div>
+</section>
+
+<!-- DIFFERENCE -->
+<section class="container-6xl py-10">
+  <div class="reveal">
+    <p class="label mb-3">//THE DIFFERENCE</p>
+    <h2 class="heading-2 text-4xl sm:text-6xl max-w-3xl">Naive AI qualification vs Verdict</h2>
+  </div>
+  <div class="grid-responsive mt-10" style="grid-template-columns: 1fr 1fr; gap: 1.25rem;">
+    <div class="reveal">
+      <div class="card p-7 h-full">
+        <p class="font-display font-semibold text-lg mb-2" style="color:var(--muted);">LLM straight into the CRM</p>
+        {% for row in ["Scores every lead a confident 78", "Invents company facts under uncertainty", "Writes fabrications straight into the CRM", "Creates a duplicate for every repeat email", "Sends outreach nobody reviewed", "No trace of why a decision happened"] %}
+        <div class="compare-row"><span class="compare-mark no" aria-hidden="true">&times;</span><span class="text-muted">{{ row }}</span></div>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="reveal" style="--reveal-delay:120ms;">
+      <div class="section-dark card p-7 h-full rounded-xl" style="background:var(--ink);">
+        <p class="font-display font-semibold text-lg mb-2">Verdict<span style="color:var(--lime);">.</span></p>
+        {% for row in ["Refuses to score below the evidence floor", "Marks unknowns as unknown, with questions", "Proposes CRM changes as reviewable diffs", "Resolves identity before creating anything", "First outreach always requires approval", "Every stage lands in an audit trail"] %}
+        <div class="compare-row"><span class="compare-mark yes" aria-hidden="true">&#10003;</span><span>{{ row }}</span></div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MIND BEHIND THE WORK -->
+<section class="container-6xl py-16">
+  <div class="reveal">
+    <p class="label mb-3">//THE MIND BEHIND THE WORK</p>
+    <h2 class="heading-2 text-4xl sm:text-6xl">Ariel Magalso</h2>
+    <p class="text-lg mt-3">AI Engineer &middot; Philippines</p>
+  </div>
+  <div class="grid-responsive mt-10 items-stretch" style="grid-template-columns: 1fr 1fr; gap: 1.25rem;">
+    <div class="reveal h-full">
+      <div class="card card-lift p-7 h-full">
+        <p class="text-base text-muted">
+          I independently designed and implemented Verdict's pipeline architecture,
+          application, evaluation suite, database, operational monitoring, interface, and
+          deployment. I turn ambiguous business workflows into reliable, human-in-the-loop
+          systems where traceability matters as much as speed.
+        </p>
+        <ul class="grid grid-cols-2 gap-3 text-sm mt-6 pt-5 border-t list-none">
+          {% for c in ["AI workflow architecture", "CRM and operations automation", "Structured LLM extraction", "Evaluation and reliability testing", "Human approval workflows", "Monitoring, cost controls, and audit trails"] %}
+          <li class="flex items-center gap-2_5"><span class="compare-mark yes" aria-hidden="true">&#10003;</span>{{ c }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+    <div class="reveal h-full" style="--reveal-delay:120ms;">
+      <div class="section-dark card p-7 h-full rounded-xl flex flex-col" style="background:var(--ink);">
+        <p class="label label-lime mb-1">//HIRING?</p>
+        <p class="heading-2 text-3xl mt-2">Looking for someone who ships AI you can trust</p>
+        <p class="text-sm text-muted mt-4">
+          Available for AI automation roles and consulting — workflow design, LLM
+          evaluation, and production automation with real safeguards.
+        </p>
+        <div class="flex flex-wrap gap-3 mt-8" style="margin-top:auto; padding-top:2rem;">
+          <a href="mailto:hello@arielmagalso.com" class="btn-white px-5 py-3">Email Ariel</a>
+          <a href="https://www.linkedin.com/in/magalsoariel" target="_blank" rel="noopener noreferrer" class="btn-ghost-dark px-5 py-3">LinkedIn</a>
+          <a href="https://arielmagalso.com" target="_blank" rel="noopener noreferrer" class="btn-ghost-dark px-5 py-3">Full portfolio</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROOF LOG -->
+<section class="container-6xl py-14">
+  <div class="reveal">
+    <p class="label mb-3">//PROOF LOG</p>
+    <h2 class="heading-2 text-4xl sm:text-6xl max-w-3xl">Milestones you can verify</h2>
+  </div>
+  <div class="mt-8">
+    {% for row in [
+      {"date": "AUG 2026", "title": "Recruiter-ready Python port shipped", "detail": "Live demo, evals, operations telemetry"},
+      {"date": "AUG 2026", "title": "60-case evaluation suite", "detail": "Zero false scores on insufficient-evidence cases"},
+      {"date": "AUG 2026", "title": "Prompt-injection scenario shipped", "detail": "Untrusted page content flagged, never obeyed"},
+      {"date": "AUG 2026", "title": "Durable worker deployed", "detail": "Spend caps, rate limits, cached guided scenarios"},
+    ] %}
+    <div class="reveal" style="--reveal-delay: {{ loop.index0 * 60 }}ms;">
+      <div class="flex flex-wrap items-baseline justify-between gap-4 py-5 border-b">
+        <span class="label shrink-0">{{ row.date }}</span>
+        <span class="font-semibold text-lg" style="flex:1; min-width:12rem;">{{ row.title }}</span>
+        <span class="text-sm text-muted">{{ row.detail }}</span>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  <div class="reveal" style="--reveal-delay:200ms;">
+    <div class="flex flex-wrap gap-3 mt-8">
+      <a href="/evals" class="btn-signal px-5 py-3">Review 60-case evals</a>
+      <a href="/operations" class="btn-outline px-5 py-3">Inspect live operations</a>
+      <a href="https://github.com/ArielMagalsoDev/verdict-python" target="_blank" rel="noopener noreferrer" class="btn-outline px-5 py-3">Read the source</a>
+    </div>
+  </div>
+</section>
+
+<!-- STATEMENT QUOTE -->
+<section class="section-dark">
+  <div class="container-4xl text-center" style="padding-top:5rem; padding-bottom:5rem;">
+    <div class="reveal">
+      <p class="label label-lime mb-6">//THE PORTFOLIO STATEMENT</p>
+      <p class="heading-2 text-3xl leading-tight">
+        &ldquo;The AI meant to clean your pipeline shouldn't become the fastest way to
+        poison your system of record.&rdquo;
+      </p>
+      <p class="label mt-8" style="color:#f9fafb;">THE FAILURE THESIS VERDICT IS BUILT AGAINST</p>
+    </div>
+  </div>
+</section>
+
+<!-- WHY IT HOLDS UP -->
+<section class="container-6xl py-16">
+  <div class="reveal">
+    <p class="label mb-3">//WHY IT HOLDS UP</p>
+    <h2 class="heading-2 text-4xl sm:text-6xl max-w-3xl">Four properties, enforced everywhere</h2>
+  </div>
+  <div class="grid-responsive mt-10" style="grid-template-columns: repeat(4, 1fr);">
+    {% for card in [
+      {"icon": "&#128279;", "title": "Evidence-linked", "body": "Every company fact and score criterion cites a source a human can open and check."},
+      {"icon": "{ }", "title": "Deterministic where it counts", "body": "The model extracts and classifies; plain code applies the rules and arithmetic."},
+      {"icon": "&#128100;", "title": "Human-in-the-loop", "body": "Consequential actions — outreach, CRM writes, merges — wait for explicit approval."},
+      {"icon": "&#128200;", "title": "Operable", "body": "Latency, cost, failures, and audit events are visible on a live operations page."},
+    ] %}
+    <div class="reveal" style="--reveal-delay: {{ loop.index0 * 80 }}ms;">
+      <div class="card card-lift p-6 h-full">
+        <span class="icon-chip mb-5" aria-hidden="true" style="margin-bottom:1.25rem;">{{ card.icon | safe }}</span>
+        <p class="font-semibold text-lg">{{ card.title }}</p>
+        <p class="text-sm text-muted mt-2 leading-relaxed">{{ card.body }}</p>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- IMPACT CALCULATOR -->
+<section class="container-6xl py-16">
+  <p class="label mb-3">//ILLUSTRATIVE CALCULATOR</p>
+  <h2 class="heading-2 text-4xl sm:text-6xl max-w-3xl">Measure the tradeoff, not the hype.</h2>
+  <p class="text-base text-muted mt-4 max-w-2xl">
+    Adjust the assumptions for your own operation. These are not measured customer results — this
+    demonstrates the calculation, seeded with the fictional example from the product plan (800
+    leads/month, 12 minutes of manual work per lead, 65% auto-eligible).
+  </p>
+
+  <div class="grid-responsive mt-10" style="grid-template-columns: 1fr 1fr;">
+    <div class="card p-6" style="display:flex; flex-direction:column; gap:1.5rem;" id="impact-inputs">
+      {% for field in [
+        {"id":"leadsPerMonth","label":"Inbound leads per month","min":50,"max":5000,"step":50,"value":800,"suffix":""},
+        {"id":"minutesPerLead","label":"Manual research + CRM entry, per lead","min":2,"max":30,"step":1,"value":12,"suffix":" min"},
+        {"id":"pctAutoEligible","label":"Automation-eligible rate","min":10,"max":95,"step":5,"value":65,"suffix":"%"},
+        {"id":"costPerHour","label":"Fully-loaded sales-ops cost","min":15,"max":120,"step":5,"value":35,"suffix":"/hr"},
+        {"id":"costPerLeadCents","label":"Model + infra cost per lead","min":0,"max":20,"step":1,"value":1,"suffix":"&cent;"},
+      ] %}
+      <label style="display:block;">
+        <div class="flex items-baseline justify-between text-sm mb-1_5">
+          <span class="text-muted">{{ field.label }}</span>
+          <span class="font-semibold"><span id="{{ field.id }}-out">{{ field.value }}</span>{{ field.suffix | safe }}</span>
+        </div>
+        <input type="range" id="{{ field.id }}" min="{{ field.min }}" max="{{ field.max }}" step="{{ field.step }}" value="{{ field.value }}" style="width:100%; accent-color: var(--ink);" />
+      </label>
+      {% endfor %}
+    </div>
+
+    <div class="grid-responsive" style="grid-template-columns: 1fr 1fr;">
+      <div class="card p-6">
+        <p class="numbering mb-1" style="color:var(--muted); font-size:0.75rem;">LEADS ELIGIBLE FOR AUTOMATIC HANDLING</p>
+        <div class="stat-num" id="impact-eligible">520</div>
+        <p class="text-xs text-muted mt-1">per month</p>
+      </div>
+      <div class="card p-6">
+        <p class="numbering mb-1" style="color:var(--muted); font-size:0.75rem;">STAFF HOURS POTENTIALLY RETURNED</p>
+        <div class="stat-num" id="impact-hours">104</div>
+        <p class="text-xs text-muted mt-1">per month</p>
+      </div>
+      <div class="card p-6">
+        <p class="numbering mb-1" style="color:var(--muted); font-size:0.75rem;">STILL ROUTED TO HUMAN REVIEW</p>
+        <div class="stat-num" id="impact-human">280</div>
+        <p class="text-xs text-muted mt-1">per month, by design — not a shortfall</p>
+      </div>
+      <div class="card p-6" style="border-color: var(--ink);">
+        <p class="numbering mb-1" style="color:var(--muted); font-size:0.75rem;">ESTIMATED NET MONTHLY SAVINGS</p>
+        <div class="stat-num" id="impact-savings">$3,632</div>
+        <p class="text-xs text-muted mt-1" id="impact-breakdown">$3,640 handling-cost reduction &minus; $8 automation cost</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="container-6xl py-16">
+  <div class="grid-responsive items-start" style="grid-template-columns: 0.8fr 1.2fr; gap: 3rem;">
+    <div class="reveal">
+      <p class="label mb-3">//FAQS</p>
+      <h2 class="heading-2 text-4xl" style="font-size: clamp(2rem,4vw,3.25rem);">Before you run the demo</h2>
+      <a href="/demo" class="btn-dark-icon mt-8" style="display:inline-flex;"><span class="icon-square" aria-hidden="true">&rarr;</span>Run it now</a>
+    </div>
+    <div class="reveal" style="--reveal-delay:100ms;">
+      {% for item in [
+        {"q": "Is this a real working system or a mockup?", "a": "A live pipeline. The demo runs real identity resolution, research, gating, and scoring against seeded fictional data. Guided scenarios are idempotent on their submission id, so repeat clicks return the already-completed result instantly and for free."},
+        {"q": "Why does it sometimes refuse to give a score?", "a": "A number produced on thin evidence is noise that erodes rep trust. If fewer than the configured floor of ICP criteria can be resolved with evidence, Verdict emits no score and instead returns the specific questions that would unblock scoring."},
+        {"q": "What stops the AI from inventing company facts?", "a": "Facts only enter the system with a source URL and verification status, and outreach drafts are checked against those sources. Unsupported claims are stripped before a human ever approves a message."},
+        {"q": "What happens if a researched page tries to manipulate the AI?", "a": "Page content is treated as untrusted data. One guided scenario plants a prompt-injection payload in a seeded source — the instruction is ignored, flagged in the audit log, and never reaches a draft."},
+        {"q": "Can I see the code and the evaluation results?", "a": "Yes — the source is on GitHub, and the evals page publishes the full scorecard, including both failure directions: false scores and false refusals."},
+      ] %}
+      <details class="faq-item">
+        <summary>{{ item.q }}</summary>
+        <p class="faq-body">{{ item.a }}</p>
+      </details>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{% include "partials/escalation_strip.html" %}
+
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/impact.js"></script>
 {% endblock %}
