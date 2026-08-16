@@ -1,8 +1,7 @@
-"""Approval-gated CRM write — this port's own addition beyond the original
-Next.js app, which only ever *proposes* a change set (nothing in it actually
-applies one; CRM writes stay illustrative there). Here, an admin-token-gated
-endpoint can apply a pending change set to the fictional CRM tables, gated
-on `applied_changes` for idempotency so a replayed approval never double-writes."""
+"""Approval-gated CRM write. The pipeline only ever *proposes* a change set;
+nothing applies one automatically. An admin-token-gated endpoint can apply a
+pending change set to the fictional CRM tables, gated on `applied_changes` for
+idempotency so a replayed approval never double-writes."""
 
 import uuid
 from datetime import UTC, datetime

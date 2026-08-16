@@ -1,5 +1,5 @@
 """Required-field validation and normalization — ordinary code, not an LLM.
-Port of lib/validate.ts."""
+Rejects malformed input before any model call."""
 
 from datetime import UTC, datetime
 

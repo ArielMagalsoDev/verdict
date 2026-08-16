@@ -1,11 +1,7 @@
-"""A 60-case evaluation set across the 7 categories in the original spec, at
-the spec's own target counts (15/10/10/10/5/5/5 = 60). This is NOT a
-line-for-line port of evals/cases.ts from the original Next.js app (that file
-is ~1,300 lines of hand-written fixtures) — it is a from-scratch set built to
-the identical spec (same categories, same counts, same grading rubric in
-evals/run.py) against this port's own seeded mini-web corpus and CRM rows, in
-the same spirit as docs/schema-reconstructed-2026-08-08.sql's reconstruction
-of the original schema.
+"""A 60-case evaluation set across 7 categories, at the target counts
+(15/10/10/10/5/5/5 = 60). Every case is written against the seeded mini-web
+corpus and CRM rows in verdict/fixtures/, and graded by the rubric in
+evals/run.py.
 
 Split: the first 3 cases per category (21 total) are marked "dev" — used
 while building/checking domain/rules.py. The remaining 39 are "heldout":

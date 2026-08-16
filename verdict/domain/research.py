@@ -1,4 +1,4 @@
-"""Company-fact extraction — port of lib/research.ts. This is intentionally
+"""Company-fact extraction. This is intentionally
 the ONLY stage that reads raw source text; its output is a small set of
 (field, value, quote) triples that domain/verify.py then checks
 independently. The field enum is a structural defense: there is no slot for

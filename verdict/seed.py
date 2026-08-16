@@ -1,8 +1,6 @@
 """Seeds the fictional CRM used for identity resolution.
 
-Mirrors the original Next.js app's seed data exactly (see
-docs/schema-reconstructed-2026-08-08.sql in the verdict repo, itself copied
-verbatim from scripts/smoke-test.ts's SEED_COMPANIES/SEED_CONTACTS): three
+Three
 similarly-named "Fieldwork ___" companies power the ambiguous-match scenario,
 and Talent Bridge Recruiting + its one contact power the confident-match /
 vendor-solicitation scenario. Idempotent — safe to call on every startup.

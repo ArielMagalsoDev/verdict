@@ -1,5 +1,5 @@
 """Decides which single source page (if any) enrichment researches against —
-port of lib/enrich.ts. Deliberately conservative: a "possible" identity
+Deliberately conservative: a "possible" identity
 match (ambiguous — more than one credible candidate) or no website at all
 means there is no safe source to pick, so this returns None rather than
 guessing. That absence is what starves the ICP criteria of evidence and

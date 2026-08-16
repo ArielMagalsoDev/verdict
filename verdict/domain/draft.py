@@ -1,4 +1,4 @@
-"""Outreach drafting + independent claim verification — port of lib/draft.ts.
+"""Outreach drafting + independent claim verification.
 The fallback path never trusts a self-report either: it builds claims as
 literal ``field: value`` fragments that are guaranteed to appear in the same
 grounding text the checker reads, so the same fail-closed contract holds

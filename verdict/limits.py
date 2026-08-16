@@ -1,4 +1,4 @@
-"""Abuse controls — port of lib/limit.ts: hourly rate limiting, a race-safe
+"""Abuse controls: hourly rate limiting, a race-safe
 daily spend cap, and (optional) Cloudflare Turnstile bot verification. All
 three are env-gated so local/demo mode never blocks on an unset secret."""
 

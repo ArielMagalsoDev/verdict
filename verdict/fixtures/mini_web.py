@@ -1,8 +1,7 @@
 """A seeded, fictional "mini-web" the enrichment stage researches against
-instead of scraping the real internet — ported verbatim (page content, slugs,
-domains, the two injection payloads) from fixtures/miniWeb.ts in the original
-Next.js app. Every citation the demo shows is a real, clickable in-app URL
-(/sources/<slug>).
+instead of scraping the real internet — fixed page content, slugs, domains,
+and two embedded injection payloads. Every citation the demo shows is a real,
+clickable in-app URL (/sources/<slug>).
 
 Each page also carries ``expected_facts``: the (field, value, quote) triples
 a careful reader would extract from ``content`` alone, deliberately excluding
@@ -15,7 +14,7 @@ applies and still passes.
 
 
 def _bucket_employees(n: int) -> str:
-    """Matches the original extraction tool's bucket enum exactly."""
+    """Matches the extraction tool's employee-count bucket enum."""
     if n <= 10:
         return "1-10"
     if n <= 49:

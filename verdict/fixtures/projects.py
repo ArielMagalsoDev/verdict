@@ -1,4 +1,4 @@
-"""Content-mirror of lib/projects.ts from the sibling AI-safeguards repos.
+"""Shared content for the cross-project escalation strip.
 The byte-identical rule (see project memory) applies to the three TypeScript
 repos sharing that file directly; this is a Python port of its content for
 the escalation strip partial."""

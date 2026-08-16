@@ -1,5 +1,5 @@
 """Fire-and-forget notification to an external automation platform (n8n) —
-port of lib/notify.ts. Deliberately opt-in and best-effort: only fires when
+Deliberately opt-in and best-effort: only fires when
 N8N_OUTBOUND_WEBHOOK_URL is set (unset by default, so demo visitors never
 trigger a real notification), and can never raise — a notification failure
 is not a pipeline failure."""

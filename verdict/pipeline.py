@@ -1,4 +1,4 @@
-"""Pipeline orchestration — stage-for-stage port of lib/pipeline.ts. Stage
+"""Pipeline orchestration, stage for stage. Stage
 order matters and is deliberate: identity resolution runs BEFORE
 enrichment/scoring so a lead that already exists never triggers wasted
 research spend, and the evidence-sufficiency gate runs BEFORE a score is
@@ -6,8 +6,8 @@ computed so thin evidence never produces a number.
 
 Each stage is wrapped in audit.with_audit() and commits immediately, so a
 client polling GET /api/v1/leads/{id} mid-run sees stages land one at a
-time — the progressive-reveal behavior the original's single blocking
-request can't offer."""
+time, so the demo reveals the pipeline progressively rather than waiting on
+one blocking request."""
 
 from datetime import datetime
 
@@ -56,10 +56,9 @@ def lead_to_dict(lead: Lead) -> dict:
 
 
 def _clear_partial_state(db: Session, lead_id) -> None:
-    """Retry idempotency: the original TS pipeline never retried (no worker
-    drains it — each run happens inline in the POST handler). This port's
-    durable worker does retry on failure, so a resumed attempt must wipe any
-    partial child rows first rather than risk duplicate facts/decisions."""
+    """Retry idempotency: the durable worker retries a failed job, so a
+    resumed attempt must wipe any partial child rows first rather than risk
+    duplicate facts/decisions."""
     db.query(IdentityMatch).filter(IdentityMatch.lead_id == lead_id).delete()
     db.query(CompanyFact).filter(CompanyFact.lead_id == lead_id).delete()
     db.query(QualificationDecision).filter(QualificationDecision.lead_id == lead_id).delete()

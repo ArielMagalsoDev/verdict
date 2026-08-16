@@ -1,8 +1,7 @@
-// Guided demo controller. Unlike the original's single blocking POST, this
-// port's API returns 202 immediately (a durable worker processes the lead)
-// and this file polls GET /api/v1/leads/{id} every 750ms, rendering audit
-// events as they land — a progressive reveal of the pipeline the original's
-// architecture can't offer.
+// Guided demo controller. POST returns 202 immediately (a durable worker
+// processes the lead), so this file polls GET /api/v1/leads/{id} every 750ms
+// and renders audit events as they land — a progressive reveal of the
+// pipeline rather than one blocking request.
 (function () {
   var OUTCOME_LABEL = {
     qualified: "Qualified",

@@ -51,9 +51,9 @@ ROOT = Path(__file__).parent
 templates = Jinja2Templates(directory=ROOT / "templates")
 
 # Schema creation + CRM seeding run at import time rather than in an ASGI
-# lifespan hook: serverless ASGI adapters (Vercel and similar) don't
-# reliably invoke `lifespan`, but module import always runs exactly once
-# before any request is served, on every platform. Both calls are
+# lifespan hook: serverless ASGI adapters don't reliably invoke `lifespan`,
+# but module import always runs exactly once before any request is served,
+# on every platform. Both calls are
 # idempotent/retry-safe (see db.init_db, seed.seed_crm) so a cold start
 # racing another process is handled the same way it is in Docker Compose.
 init_db()
@@ -66,9 +66,9 @@ app.mount("/static", StaticFiles(directory=ROOT / "static"), name="static")
 
 @app.exception_handler(FastAPIHTTPException)
 async def http_exception_handler(request: Request, exc: FastAPIHTTPException):
-    """Unwraps dict details to the top level so API error shapes match the
-    original app exactly ({"error": "...", "message": "..."}), not FastAPI's
-    default {"detail": {...}} envelope."""
+    """Unwraps dict details to the top level so API errors are shaped
+    {"error": "...", "message": "..."} rather than FastAPI's default
+    {"detail": {...}} envelope."""
     if isinstance(exc.detail, dict):
         return JSONResponse(status_code=exc.status_code, content=exc.detail)
     return JSONResponse(status_code=exc.status_code, content={"error": exc.detail})
@@ -402,8 +402,8 @@ def _process_inline(db: Session, lead: Lead, job: Job) -> None:
     within the request, then marks the job accordingly, mirroring worker.py's
     own single-attempt terminal states. The response is still sent after this
     returns, so by the time a client's first poll lands the lead is already
-    complete — same experience as the original app's own blocking request,
-    just wrapped in the same 202/poll API shape the async worker path uses."""
+    complete — a blocking request wrapped in the same 202/poll API shape the
+    async worker path uses."""
     job.status = "running"
     job.attempts += 1
     db.commit()
@@ -503,7 +503,7 @@ def decide_draft(lead_id: UUID, decision: DraftDecisionIn, db: Session = Depends
 
 
 # ---------------------------------------------------------------------------
-# API — approval-gated CRM writes (this port's own extra; see verdict/crm.py)
+# API — approval-gated CRM writes (see verdict/crm.py)
 # ---------------------------------------------------------------------------
 @app.post("/api/v1/crm-change-sets/{change_id}/approve", dependencies=[Depends(admin)])
 def approve(change_id: UUID, db: Session = Depends(db_session)):

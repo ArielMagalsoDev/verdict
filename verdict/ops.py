@@ -1,4 +1,4 @@
-"""Aggregation queries for /operations — port of lib/ops.ts. Demo-scale data
+"""Aggregation queries for /operations. Demo-scale data
 volume (dozens to low hundreds of rows): fetching and reducing in Python is
 simpler and just as correct as a SQL GROUP BY at this scale."""
 

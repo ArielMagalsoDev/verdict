@@ -16,8 +16,7 @@ def new_uuid() -> uuid.UUID:
 
 
 # ---------------------------------------------------------------------------
-# Seeded fictional CRM — identity-resolution tables (mirrors
-# docs/schema-reconstructed-2026-08-08.sql from the original Next.js app).
+# Seeded fictional CRM — the identity-resolution tables.
 # Text primary keys ("c1", "p1", ...) for the seeded rows; new rows created
 # through the approval-gated CRM write flow get a fresh uuid4 hex string.
 # ---------------------------------------------------------------------------

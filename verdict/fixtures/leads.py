@@ -1,6 +1,5 @@
-"""The four guided demo scenarios — ported verbatim (copy, values, submission
-ids) from fixtures/leads.ts in the original Next.js app so the two demos tell
-the identical story."""
+"""The four guided demo scenarios — fixed copy, values, and submission ids so
+each one always tells the same story."""
 
 # Fixed timestamp — no datetime.now() at module scope, keeps this deterministic.
 SUBMITTED_AT = "2026-08-07T09:00:00.000Z"

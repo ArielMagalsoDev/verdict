@@ -1,14 +1,10 @@
-/* Agenio design port (see docs/DESIGN-agenio.md in the original Next.js repo).
-   Tokens extracted from the live agenio.framer.website via computed styles.
-   Light-only by deliberate choice — the source template commits to a single
-   light look, so this port does too.
+/* Design system: tokens extracted from the Agenio template via computed
+   styles. Light-only by deliberate choice — the design commits to a single
+   light look.
 
-   This file is a near-verbatim port of app/globals.css from the original
-   verdict repo: every custom property and named component class carries the
-   same name and rule body. The one structural difference is the utility
-   layer at the bottom, which stands in for the Tailwind utility classes the
-   original leans on (max-w-6xl, flex, grid-cols-4, text-sm, ...) — this repo
-   has no build step, so those are hand-written here instead of generated. */
+   This repo has no build step, so the Tailwind-style utility classes the
+   templates use inline (max-w-6xl, flex, grid-cols-4, text-sm, ...) are
+   hand-written in the utility layer below rather than generated. */
 
 :root {
   --canvas: #f3f4f6;
@@ -70,7 +66,7 @@ main {
   flex-direction: column;
 }
 
-/* Tailwind-preflight equivalents the original page markup assumes: no link
+/* Tailwind-preflight equivalents the page markup assumes: no link
    underlines, zeroed heading/paragraph/list margins, unstyled buttons. */
 a {
   color: inherit;
@@ -119,11 +115,10 @@ svg {
 }
 
 /* ============================================================
-   Utility layer — stands in for the Tailwind classes the original
-   templates used inline. Named the same way for easy cross-reference.
-   Placed BEFORE the component classes below, mirroring the original build
-   where Tailwind utilities precede globals.css custom rules — so component
-   rules like .heading-2/.ghost-num/.stat-num win ties, exactly as deployed.
+   Utility layer — the Tailwind-style classes the templates use inline,
+   hand-written because there is no build step. Named after their Tailwind
+   equivalents. Placed BEFORE the component classes below so component rules
+   like .heading-2/.ghost-num/.stat-num win ties.
    ============================================================ */
 
 .container-6xl { max-width: 72rem; margin-left: auto; margin-right: auto; padding-left: 1.5rem; padding-right: 1.5rem; width: 100%; }
@@ -240,8 +235,8 @@ svg {
   .sm\:text-4xl { font-size: 2.25rem; line-height: 2.5rem; }
   .sm\:text-5xl { font-size: 3rem; line-height: 1; }
   .sm\:text-6xl { font-size: 3.75rem; line-height: 1; }
-  /* Arbitrary sizes the original uses as text-[52px] etc. — like Tailwind,
-     these set only font-size (line-height comes from heading-2's own 1). */
+  /* Arbitrary sizes used as text-[52px] etc. — like Tailwind, these set
+     only font-size (line-height comes from heading-2's own 1). */
   .sm\:text-52 { font-size: 52px; }
   .sm\:text-56 { font-size: 56px; }
   .sm\:text-64 { font-size: 64px; }

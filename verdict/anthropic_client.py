@@ -1,6 +1,6 @@
 """Lazy Anthropic client + a shared forced-tool-call helper. Every real model
-call in this project pins temperature 0 and the same model id — mirrors
-lib/anthropic.ts in the original Next.js app. Module-load-time construction
+call in this project pins temperature 0 and the same model id.
+Module-load-time construction
 would break `import verdict.main` with no .env present, so the client is
 built on first use, not at import time."""
 

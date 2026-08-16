@@ -228,7 +228,7 @@ def test_rate_limit_blocks_after_the_configured_ceiling(client):
 
 
 def test_inline_processing_mode_completes_before_the_response_is_returned(client, monkeypatch):
-    """Serverless platforms (Vercel and similar) can't run the persistent
+    """Serverless platforms can't run the persistent
     verdict-worker process, so Settings.inline_processing makes the API
     request itself run the pipeline synchronously. Verify a lead is already
     `completed` the instant the 202 response comes back, with no worker

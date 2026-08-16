@@ -1,4 +1,4 @@
-"""Response cache keyed by submission id — port of lib/cache.ts. Guided demo
+"""Response cache keyed by submission id. Guided demo
 scenarios are pre-warmed into this so repeated clicks are instant and free,
 and the budget-exhausted fallback path always has content."""
 

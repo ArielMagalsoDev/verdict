@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
-# Sync this repo to the VPS and restart the stack (web + durable worker +
-# Postgres) behind the Traefik that ships with Hostinger's Docker template.
+# Sync this repo to the deployment host and restart the stack (web + durable
+# worker + Postgres) behind a Traefik reverse proxy.
 #
-# The server's own /docker/verdict/.env and docker-compose.override.yml (the
-# Traefik routing labels) are never overwritten — secrets live only there.
+# The server's own .env and docker-compose.override.yml (the Traefik routing
+# labels) are never overwritten — secrets live only there, never in this repo.
 #
-#   ./deploy-vps.sh
+#   VERDICT_VPS_HOST=user@host VERDICT_VPS_KEY=~/.ssh/your_key ./deploy-vps.sh
 set -euo pipefail
 
-HOST="${VERDICT_VPS_HOST:-root@187.52.118.180}"
-KEY="${VERDICT_VPS_KEY:-$HOME/.ssh/id_ed25519_hostinger_vps}"
-REMOTE_DIR=/docker/verdict
+HOST="${VERDICT_VPS_HOST:?set VERDICT_VPS_HOST, e.g. user@your-host}"
+KEY="${VERDICT_VPS_KEY:?set VERDICT_VPS_KEY, e.g. ~/.ssh/id_ed25519}"
+REMOTE_DIR="${VERDICT_VPS_DIR:-/docker/verdict}"
 
 rsync -az --delete -e "ssh -i $KEY" \
   --exclude .git --exclude .venv --exclude .venv-dev --exclude __pycache__ \

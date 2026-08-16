@@ -1,31 +1,42 @@
-# Verdict — Python/FastAPI edition
+# Verdict
 
-A faithful clone of [Verdict](https://verdict.arielmagalso.com) — the original TypeScript/Next.js AI
-lead-qualification demo — rebuilt as one Python application. FastAPI serves the UI and the API,
-PostgreSQL is the durable workflow store and the first CRM adapter, and Claude performs the
-constrained language tasks (classification, extraction, drafting). Deterministic Python rules own
-the score; a human owns every CRM write.
+An AI lead-qualification system — live at **[verdict.arielmagalso.com](https://verdict.arielmagalso.com)**.
 
-> The original app: `https://github.com/ArielMagalsoDev/verdict`. This repo:
-> `https://github.com/ArielMagalsoDev/verdict-python`.
+One Python application: FastAPI serves the UI and the API, PostgreSQL is the durable workflow store
+and the first CRM adapter, and Claude performs the constrained language tasks (classification,
+extraction, drafting).
 
-## What's different from the original
+**Stack:** Python · FastAPI · Jinja2 · SQLAlchemy · PostgreSQL · Docker Compose · Claude API
 
-The product story, design system, and all four guided demo scenarios are ported as closely as a
-different stack allows. The architecture underneath differs in one deliberate way:
+## The problem
 
-- **The original** processes a lead synchronously inside its `POST /api/leads` handler — one
-  blocking request, 10–20 seconds uncached.
-- **This port** returns `202 Accepted` immediately and a real background worker (`verdict-worker`)
-  drains a Postgres-backed job queue (`FOR UPDATE SKIP LOCKED`, retries, backoff). The demo page
-  polls `GET /api/v1/leads/{id}` every 750ms and reveals pipeline stages as they land in the audit
-  trail — a progressive reveal the original's request/response model can't offer.
-- This port also adds an **approval-gated CRM write** (`POST /api/v1/crm-change-sets/{id}/approve`,
-  admin-token gated) — the original only ever *proposes* a change set and never applies one.
+Inbound leads arrive faster than anyone can research them, so teams reach for an LLM — and get a
+system that is confidently wrong. It invents a score for a lead it knows nothing about, quotes
+"facts" that appear nowhere in the source, silently merges a new contact onto an existing CRM
+record, and will follow an instruction hidden in a web page it was asked to read. The failure is
+never loud; it is a plausible paragraph nobody can trace back to evidence.
 
-Everything else — the evidence-sufficiency gate, the deterministic ICP scoring engine, identity
-resolution, the seeded "mini-web" research corpus, the prompt-injection defenses, the four
-responsible outcomes, the design system — is a close port.
+## The solution
+
+Claude is used only where language is the hard part. Deterministic Python rules own the arithmetic,
+and a human owns every CRM write.
+
+- **Evidence gate before score.** Below the evidence floor (4 of 7 core ICP criteria) no number is
+  ever emitted — only the specific questions that would unblock one.
+- **Deterministic scoring.** `verdict/domain/rules.py` owns the points, bands, and vetoes. The model
+  never picks the score.
+- **Grounded facts.** Every extracted fact must appear verbatim in its source or it is rejected and
+  logged.
+- **Prompt-injection defense.** Instructions embedded in researched pages are detected, flagged, and
+  never reach the draft.
+- **Identity resolution.** A likely-but-unproven match proposes nothing rather than merging records.
+- **Diffs, not writes.** CRM changes stay `pending` until an admin token approves them; approvals are
+  idempotent.
+- **Durable execution.** `POST /api/v1/leads` returns `202 Accepted` and a background worker drains a
+  Postgres job queue (`FOR UPDATE SKIP LOCKED`, retries, backoff). The demo page polls
+  `GET /api/v1/leads/{id}` every 750ms and reveals each pipeline stage as it lands in the audit trail.
+- **Measured, not asserted.** A 60-case labeled eval suite grades outcome, band, and injection
+  leakage, and publishes the scorecard at `/evals`.
 
 ## Run locally
 
@@ -52,16 +63,13 @@ engineered to land on a different one of the four responsible outcomes:
 | Duplicate & poor-fit (Talent Bridge Recruiting) | `duplicate_or_merge_review` — matches a seeded vendor contact |
 | Prompt-injection attempt (Ridgeline Field Services) | `qualified` — an embedded instruction in the researched source is ignored, flagged, and never reaches the draft |
 
-## Important behavior
+## API behavior
 
 - `POST /api/v1/leads` and `POST /api/v1/scenarios/{key}` are idempotent on `submission_id` and
   return a durable job pointer (`202`), not the finished result.
 - The worker claims queued jobs with `FOR UPDATE SKIP LOCKED`; failed jobs retry up to 3 times
   before `failed_permanent`, refunding reserved spend.
-- Evidence is required before a numeric score can exist — below the evidence floor (default 4 of
-  7 core ICP criteria), no score is ever emitted, only the specific unblocking questions.
-- Claude classifies, extracts, and drafts; Python rules (`verdict/domain/rules.py`) own the
-  arithmetic. Every model call has a deterministic fallback used when `ANTHROPIC_API_KEY` is unset.
+- Every model call has a deterministic fallback, used whenever `ANTHROPIC_API_KEY` is unset.
 - Turnstile bot-check, a per-IP hourly rate limit, and a race-safe daily spend cap all guard
   `POST /api/v1/leads` — all three are env-gated and never block local/demo mode.
 - CRM changes are proposed as diffs and remain `pending` until
@@ -77,12 +85,16 @@ engineered to land on a different one of the four responsible outcomes:
 python -m verdict.evals
 ```
 
-Runs a 60-case labeled set across the same 7 categories and target counts as the original spec
+Runs a 60-case labeled set across 7 categories
 (15 sales-ready / 10 needs-review / 10 nurture / 10 disqualified / 5 duplicate / 5
 insufficient-evidence / 5 adversarial), grades by outcome + band + injection-leakage, and writes a
 scorecard to the database for `/evals` to render — including the dev-vs-held-out split and
 false-score/false-refusal counts. Works identically with or without an API key; the page labels
 which mode produced the last run.
+
+The latest run against production (real Claude calls, real Postgres writes) scored **57/60 (95%)** —
+100% on the dev set, 92% held out — at roughly $0.01 per lead. The live numbers are always the ones
+published at [/evals](https://verdict.arielmagalso.com/evals).
 
 ## Development
 
@@ -100,43 +112,40 @@ Postgres is required for the worker's `SKIP LOCKED` claim query to mean anything
 concurrency, but the whole app — including the full test suite and the eval suite — also runs
 against SQLite for fast local iteration (set `DATABASE_URL=sqlite:///./dev.db`). There is no
 migrations directory; the schema is created with `Base.metadata.create_all()` on startup, so
-schema changes are a "drop the volume and restart" operation, same as the original's fresh-project
-posture.
+schema changes are a "drop the volume and restart" operation.
 
 ## Deployments
 
-**Production is the VPS** — web + **durable worker** + Postgres behind Traefik
-(Let's Encrypt HTTPS), serving https://verdict.arielmagalso.com (and the box's own
-https://srv1906425.hstgr.cloud alias).
+Production runs on a VPS: web, the durable worker, and Postgres in Docker Compose behind Traefik
+with Let's Encrypt HTTPS.
 
-Redeploy with `./deploy-vps.sh` (rsync + `docker compose up -d --build`); the server's `.env` and
-its Traefik routing labels in `docker-compose.override.yml` are left untouched, so secrets never
-leave the box.
+Redeploy with `./deploy-vps.sh` (rsync + `docker compose up -d --build`), pointing it at your own
+host:
 
-Cloudflare Turnstile is live, with the production domain registered on the widget. One caveat on
-the `*.hstgr.cloud` alias: Turnstile refuses to issue tokens for that shared suffix (error
-110200), and the bot check fails closed — so demo submissions only work on the real domain,
-which is the intended entry point anyway.
+```bash
+VERDICT_VPS_HOST=user@your-host VERDICT_VPS_KEY=~/.ssh/id_ed25519 ./deploy-vps.sh
+```
 
-A second deployment exists on Vercel (serverless, `inline_processing` runs the pipeline inside
-the request) at https://verdict-python.vercel.app. It is frozen as-is — no further fixes, env
-changes, or redeploys are made there; it proved the serverless-compatible code path works but the
-VPS is the one this repo is developed against going forward.
+The server's `.env` and its Traefik routing labels in `docker-compose.override.yml` are left
+untouched, so secrets live only on the box and are never committed to this repo.
+
+Cloudflare Turnstile guards the public lead form, with the production domain registered on the
+widget. The bot check fails closed, so submissions only work on that domain.
 
 ## Project layout
 
 ```
 verdict/
-  main.py            FastAPI app: HTML pages + JSON API
-  pipeline.py         Stage-for-stage pipeline orchestration
-  worker.py           Durable job-queue worker
+  main.py              FastAPI app: HTML pages + JSON API
+  pipeline.py          Stage-for-stage pipeline orchestration
+  worker.py            Durable job-queue worker
+  models.py            SQLAlchemy schema
   domain/              Pure logic + Claude call sites, one module per pipeline stage
-  fixtures/            The 4 demo scenarios, the 15-page seeded research corpus, the escalation-strip data
+  fixtures/            Demo scenarios, the seeded 15-page research corpus, project data
   evals/               The 60-case labeled set + grading harness
-  models.py            SQLAlchemy schema (mirrors the original's reconstructed Postgres schema)
-  templates/, static/   Jinja2 + vanilla CSS/JS port of the original's design system
-tests/                 Unit tests (rules/identity/verify/changeset/classify), pipeline e2e
-                        (fallback-mode scenario reproduction), and HTTP API tests
+  templates/, static/  Jinja2 templates + vanilla CSS/JS design system
+tests/                 Unit tests (rules, identity, verify, changeset, classify),
+                       pipeline end-to-end, and HTTP API tests
 ```
 
 All companies and contacts in the guided demo are fictional.

@@ -1,6 +1,6 @@
 """Deterministic, zero-cost fast-path screen over RESEARCHED content (not
 user input — Verdict's injection surface is retrieved web pages). Port of
-lib/screen.ts. Advisory, not a blocker: it flags a source for the audit
+Advisory, not a blocker: it flags a source for the audit
 trail. The real defense is structural — the extraction tool's field enum and
 domain/verify.py's grounding check — this is defense-in-depth on top of that."""
 

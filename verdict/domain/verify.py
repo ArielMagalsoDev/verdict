@@ -1,4 +1,4 @@
-"""Fact verification — port of lib/verify.ts. Two independent checks per
+"""Fact verification. Two independent checks per
 fact: (1) is the value actually entailed by its quote, and (2) does the
 quote read as an instruction aimed at an AI rather than a fact about the
 company. A fact must pass the deterministic grounding check AND both of

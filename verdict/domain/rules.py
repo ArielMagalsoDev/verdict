@@ -1,5 +1,5 @@
 """Deterministic ICP scoring engine + evidence-sufficiency gate — port of
-lib/rules.ts. Pure function, no IO, every branch unit-testable.
+Pure function, no IO, every branch unit-testable.
 
 The gate runs BEFORE any score is computed: if fewer than evidence_floor of
 the 7 core criteria are resolvable, no numeric score is ever emitted. This is

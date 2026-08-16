@@ -1,5 +1,5 @@
 """Ordinary code, not an LLM — CRM-field merge precedence is deterministic.
-Port of lib/changeset.ts. Always propose-then-apply: this only builds the
+Always propose-then-apply: this only builds the
 diff a human/UI reviews; nothing is written to the CRM here.
 
 A "possible" identity match proposes NOTHING (contact_action/company_action

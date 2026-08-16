@@ -1,4 +1,4 @@
-"""Append-only audit trail — port of lib/audit.ts. Every stage of every run
+"""Append-only audit trail. Every stage of every run
 leaves a real, persisted record, and commits immediately so a poller reading
 mid-run state sees stages appear progressively rather than all at once."""
 

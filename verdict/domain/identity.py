@@ -1,4 +1,4 @@
-"""Pure identity-resolution logic — port of lib/identity.ts. No IO, fully
+"""Pure identity-resolution logic. No IO, fully
 unit-testable. Runs BEFORE enrichment/scoring in the pipeline so a lead that
 already exists never triggers wasted research spend.
 

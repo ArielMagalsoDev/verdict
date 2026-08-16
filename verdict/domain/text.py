@@ -1,4 +1,4 @@
-"""Pure string-normalization and similarity helpers — port of lib/text.ts.
+"""Pure string-normalization and similarity helpers.
 No IO, fully unit-testable; identity resolution and validation are built on
 this layer."""
 

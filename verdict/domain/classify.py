@@ -1,4 +1,4 @@
-"""Message classification — port of lib/classify.ts. Prompt and tool schema
+"""Message classification. Prompt and tool schema
 are copied verbatim for the real-Claude path; a deterministic keyword
 heuristic stands in when ANTHROPIC_API_KEY is unset so the demo still runs
 end to end for free."""
