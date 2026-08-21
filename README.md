@@ -1,5 +1,7 @@
 # Verdict
 
+[![CI](https://github.com/ArielMagalsoDev/verdict/actions/workflows/ci.yml/badge.svg)](https://github.com/ArielMagalsoDev/verdict/actions/workflows/ci.yml)
+
 An AI lead-qualification system — live at **[verdict.arielmagalso.com](https://verdict.arielmagalso.com)**.
 
 One Python application: FastAPI serves the UI and the API, PostgreSQL is the durable workflow store
@@ -7,6 +9,20 @@ and the first CRM adapter, and Claude performs the constrained language tasks (c
 extraction, drafting).
 
 **Stack:** Python · FastAPI · Jinja2 · SQLAlchemy · PostgreSQL · Docker Compose · Claude API
+
+## Five-minute engineering walkthrough
+
+The public portfolio has a focused [Verdict case study](https://verdict.arielmagalso.com/case-study)
+for reviewing the system quickly:
+
+1. Run a guided decision at `/demo` and watch the audit stages land.
+2. Read the [architecture](https://verdict.arielmagalso.com/architecture) to see where model work ends and deterministic code begins.
+3. Inspect the [evaluation scorecard](https://verdict.arielmagalso.com/evals), including held-out cases, false scores, false refusals, and confidence intervals.
+4. Check [live operations](https://verdict.arielmagalso.com/operations) for latency, spend, stuck work, and duplicate-write prevention.
+5. Open the source below and trace the pipeline, tests, worker, and domain rules.
+
+The case study also documents the ambiguous-identity failure that shaped the evidence gate. It is
+intended to show engineering judgment and ownership, not just the finished interface.
 
 ## The problem
 
@@ -95,6 +111,12 @@ which mode produced the last run.
 The latest run against production (real Claude calls, real Postgres writes) scored **57/60 (95%)** —
 100% on the dev set, 92% held out — at roughly $0.01 per lead. The live numbers are always the ones
 published at [/evals](https://verdict.arielmagalso.com/evals).
+
+The scorecard reports 95% Wilson confidence intervals for the overall result and every slice. This
+is deliberately more honest than presenting a small category's point estimate as certainty: a 5/5
+adversarial slice is encouraging evidence, not proof of perfect real-world performance. Every push
+and pull request also runs lint, unit and integration tests, plus the complete deterministic eval
+suite in GitHub Actions.
 
 ## Development
 

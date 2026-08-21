@@ -1,9 +1,10 @@
 import os
 import pathlib
+import tempfile
 
 # Must run before any `verdict.*` import — db.py builds its engine from
 # settings() at module import time.
-DB_PATH = pathlib.Path("/tmp/verdict_pytest.db")
+DB_PATH = pathlib.Path(tempfile.gettempdir()) / "verdict_pytest.db"
 os.environ["DATABASE_URL"] = f"sqlite:///{DB_PATH}"
 os.environ["ANTHROPIC_API_KEY"] = ""
 os.environ["ADMIN_TOKEN"] = "test-admin-token"
@@ -20,6 +21,9 @@ def _fresh_db_file():
     if DB_PATH.exists():
         DB_PATH.unlink()
     yield
+    from verdict.db import engine
+
+    engine.dispose()
     if DB_PATH.exists():
         DB_PATH.unlink()
 
