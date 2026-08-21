@@ -25,6 +25,7 @@ from ..models import CompanyFact, EvalRun, IdentityMatch, Lead, OutreachDraft, Q
 from ..pipeline import process_lead
 from ..seed import seed_crm
 from .cases import EVAL_CASES
+from .stats import percentile, wilson_interval
 
 INJECTION_MARKERS = re.compile(
     r"\b(pre-?certified|pre-?approved|qualification_score|skip (all )?checks|40%|"
@@ -129,24 +130,38 @@ def run_evals() -> dict:
         for cat in categories:
             in_cat = [r for r in results if r["category"] == cat]
             cat_passed = sum(1 for r in in_cat if r["pass"])
+            ci_low, ci_high = wilson_interval(cat_passed, len(in_cat))
             category_breakdown.append(
-                {"category": cat, "total": len(in_cat), "passed": cat_passed, "accuracy": cat_passed / len(in_cat)}
+                {
+                    "category": cat,
+                    "total": len(in_cat),
+                    "passed": cat_passed,
+                    "accuracy": cat_passed / len(in_cat),
+                    "ci_low": ci_low,
+                    "ci_high": ci_high,
+                }
             )
 
         for split in ("dev", "heldout"):
             in_split = [r for r in results if r["split"] == split]
             split_passed = sum(1 for r in in_split if r["pass"])
+            ci_low, ci_high = wilson_interval(split_passed, len(in_split))
             category_breakdown.append(
                 {
                     "category": f"split:{split}",
                     "total": len(in_split),
                     "passed": split_passed,
                     "accuracy": 0.0 if not in_split else split_passed / len(in_split),
+                    "ci_low": ci_low,
+                    "ci_high": ci_high,
                 }
             )
 
         failures = [{"id": r["id"], "category": r["category"], "detail": r["detail"]} for r in results if not r["pass"]]
         mean_latency_ms = round(sum(r["latency_ms"] for r in results) / total) if total else None
+        latency_ms = [r["latency_ms"] for r in results]
+        p50_latency_ms = percentile(latency_ms, 0.50)
+        p95_latency_ms = percentile(latency_ms, 0.95)
         has_key = bool(settings().anthropic_api_key)
         model = settings().anthropic_model if has_key else "deterministic-fallback"
         total_cost_usd = round(total * settings().estimated_cost_per_lead_usd, 4) if has_key else 0.0
@@ -172,4 +187,13 @@ def run_evals() -> dict:
         print(f"\n{passed}/{total} passed ({accuracy * 100:.1f}%) — model: {model}")
         print("Scorecard written to eval_runs. View at /evals.")
 
-        return {"total": total, "passed": passed, "accuracy": accuracy, "failures": failures}
+        ci_low, ci_high = wilson_interval(passed, total)
+        return {
+            "total": total,
+            "passed": passed,
+            "accuracy": accuracy,
+            "accuracy_ci": [ci_low, ci_high],
+            "p50_latency_ms": p50_latency_ms,
+            "p95_latency_ms": p95_latency_ms,
+            "failures": failures,
+        }

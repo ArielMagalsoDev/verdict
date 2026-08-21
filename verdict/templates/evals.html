@@ -34,6 +34,7 @@
     <div class="card card-lift p-6">
       <div class="stat-num">{{ (run.accuracy * 100) | round(0) | int }}%</div>
       <div class="text-sm text-muted mt-2">Accuracy across {{ run.total_cases }} cases</div>
+      <div class="text-xs text-muted mt-2">95% Wilson interval: {{ (accuracy_ci[0] * 100) | round(0) | int }}–{{ (accuracy_ci[1] * 100) | round(0) | int }}%</div>
     </div>
     <div class="card card-lift p-6">
       <div class="stat-num">{{ run.false_score_count }}</div>
@@ -49,6 +50,24 @@
     </div>
   </div>
 
+  <section class="eval-method-card mt-10" aria-labelledby="eval-method-title">
+    <div>
+      <p class="label mb-2">//RELEASE GATE</p>
+      <h2 id="eval-method-title" class="heading-2 text-3xl">What must stay true before a change ships</h2>
+      <p class="text-sm text-muted mt-3 max-w-2xl">The score is a diagnostic, not a promise. Verdict treats the failure directions and the reproducibility of the run as the engineering gate.</p>
+    </div>
+    <div class="eval-gate-grid">
+      {% for gate in [
+        {"n":"01","title":"No false scores","body":"Insufficient evidence must return questions, never a numeric qualification."},
+        {"n":"02","title":"No unsupported claims","body":"Every fact and outreach claim must survive source and quote verification."},
+        {"n":"03","title":"No silent regressions","body":"Held-out and deterministic regression cases remain within the accepted tolerance."},
+        {"n":"04","title":"No hidden version drift","body":"The run records the dataset, model, ruleset, and timestamp used to produce it."}
+      ] %}
+      <article class="eval-gate-item"><span>{{ gate.n }}</span><h3>{{ gate.title }}</h3><p>{{ gate.body }}</p></article>
+      {% endfor %}
+    </div>
+  </section>
+
   <h2 class="label mt-12 mb-4">//DEV SET VS. HELD-OUT SET</h2>
   <div class="grid-responsive" style="grid-template-columns: repeat(2, 1fr);">
     {% for row in run.category_breakdown %}
@@ -59,6 +78,7 @@
         {{ "Dev set (tuned against)" if row.category == "split:dev" else "Held-out set (not tuned against)" }}
         &middot; {{ row.passed }}/{{ row.total }} cases
       </div>
+      {% if row.ci_low is defined %}<div class="text-xs text-muted mt-2">95% interval: {{ (row.ci_low * 100) | round(0) | int }}–{{ (row.ci_high * 100) | round(0) | int }}%</div>{% endif %}
     </div>
     {% endif %}
     {% endfor %}
@@ -72,7 +92,7 @@
           <th class="p-3 font-semibold">Category</th>
           <th class="p-3 font-semibold">Cases</th>
           <th class="p-3 font-semibold">Passed</th>
-          <th class="p-3 font-semibold">Accuracy</th>
+          <th class="p-3 font-semibold">Accuracy (95% interval)</th>
         </tr>
       </thead>
       <tbody>
@@ -81,7 +101,7 @@
           <td class="p-3">{{ category_label.get(row.category, row.category) }}</td>
           <td class="p-3 text-muted">{{ row.total }}</td>
           <td class="p-3 text-muted">{{ row.passed }}</td>
-          <td class="p-3"><span class="pill {{ 'badge-outcome-qualified' if row.accuracy == 1 else 'badge-outcome-insufficient_evidence' }}">{{ (row.accuracy * 100) | round(0) | int }}%</span></td>
+          <td class="p-3"><span class="pill {{ 'badge-outcome-qualified' if row.accuracy == 1 else 'badge-outcome-insufficient_evidence' }}">{{ (row.accuracy * 100) | round(0) | int }}%</span>{% if row.ci_low is defined %} <span class="text-xs text-muted">{{ (row.ci_low * 100) | round(0) | int }}–{{ (row.ci_high * 100) | round(0) | int }}%</span>{% endif %}</td>
         </tr>
         {% endfor %}
       </tbody>

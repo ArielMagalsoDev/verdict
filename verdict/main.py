@@ -17,6 +17,7 @@ from .crm import apply_change_set, reject_change_set
 from .db import init_db, session_scope
 from .domain.changeset import derive_outcome
 from .domain.validate import ValidationError, validate_lead
+from .evals.stats import wilson_interval
 from .fixtures import DEMO_SCENARIOS, PROJECTS, find_mini_web_page_by_slug, find_scenario
 from .limits import check_rate_limit, refund_spend, reserve_spend, verify_turnstile
 from .models import (
@@ -231,6 +232,16 @@ def architecture(request: Request):
     return templates.TemplateResponse(request, "architecture.html", {"page": "architecture"})
 
 
+@app.get("/case-study", response_class=HTMLResponse)
+def case_study(request: Request, db: Session = Depends(db_session)):
+    run = db.scalar(select(EvalRun).order_by(EvalRun.run_at.desc()))
+    return templates.TemplateResponse(
+        request,
+        "case-study.html",
+        {"page": "case-study", "run": run},
+    )
+
+
 CATEGORY_LABEL = {
     "sales_ready": "Sales-ready",
     "needs_review": "Needs review",
@@ -245,8 +256,11 @@ CATEGORY_LABEL = {
 @app.get("/evals", response_class=HTMLResponse)
 def evals(request: Request, db: Session = Depends(db_session)):
     run = db.scalar(select(EvalRun).order_by(EvalRun.run_at.desc()))
+    accuracy_ci = wilson_interval(run.passed_cases, run.total_cases) if run else None
     return templates.TemplateResponse(
-        request, "evals.html", {"page": "evals", "run": run, "category_label": CATEGORY_LABEL}
+        request,
+        "evals.html",
+        {"page": "evals", "run": run, "category_label": CATEGORY_LABEL, "accuracy_ci": accuracy_ci},
     )
 
 

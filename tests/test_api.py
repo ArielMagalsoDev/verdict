@@ -42,6 +42,21 @@ def test_all_html_pages_return_200(client):
         assert res.status_code == 200, path
 
 
+def test_home_exposes_private_integration_configurator(client):
+    body = client.get("/").text
+    assert 'id="integration-configurator"' in body
+    assert 'id="integration-blueprint"' in body
+    assert "No form submission, analytics event, storage, or network request" in body
+    assert "/static/js/integration.js" in body
+
+
+def test_demo_exposes_guided_sequence_and_optional_custom_form(client):
+    body = client.get("/demo").text
+    for label in ("Choose lead", "Resolve identity", "Gather evidence", "Gate", "Score", "Human review"):
+        assert label in body
+    assert "custom-lead-disclosure" in body
+
+
 def test_source_page_200_for_known_slug_404_for_unknown(client):
     assert client.get("/sources/harborline-clinics-about").status_code == 200
     assert client.get("/sources/does-not-exist").status_code == 404

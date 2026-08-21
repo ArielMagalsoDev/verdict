@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+{% from "partials/icons.html" import lucide %}
+{% block content %}
+
+<section class="blueprint-grid relative overflow-hidden">
+  <div aria-hidden="true">
+    <span class="pixel-block" style="top:0; right:96px; width:72px; height:36px;"></span>
+    <span class="pixel-block" style="top:36px; right:24px; width:36px; height:36px;"></span>
+  </div>
+  <div class="container-5xl pt-16 pb-14 sm:pt-24 sm:pb-20">
+    <div class="reveal">
+      <p class="label mb-4">//CASE STUDY / VERDICT</p>
+      <h1 class="display-hero text-4xl sm:text-6xl">An AI workflow that knows when to stop.</h1>
+      <p class="text-lg text-muted mt-6 max-w-2xl">
+        I built Verdict to answer a practical engineering question: how do you use an LLM
+        inside a revenue workflow without letting a plausible sentence become an untraceable
+        CRM write?
+      </p>
+      <div class="case-hero-actions flex flex-wrap gap-3 mt-8">
+        <a href="/demo" class="btn-dark-icon"><span class="icon-square" aria-hidden="true">&rarr;</span>Run the demo</a>
+        <a href="/evals" class="btn-outline px-5 py-3">Inspect the evals</a>
+        <a href="https://github.com/ArielMagalsoDev/verdict" target="_blank" rel="noopener noreferrer" class="btn-outline px-5 py-3">Open the source</a>
+      </div>
+    </div>
+    <dl class="case-hero-proof reveal" style="--reveal-delay:120ms;" aria-label="Verdict proof points">
+      <div><dt>60</dt><dd>labeled eval cases</dd></div>
+      <div><dt>11</dt><dd>staged pipeline steps</dd></div>
+      <div><dt>0</dt><dd>scores below evidence floor</dd></div>
+    </dl>
+  </div>
+</section>
+
+<section class="container-5xl py-16" aria-labelledby="case-problem-title">
+  <div class="case-section-heading reveal">
+    <p class="label mb-3">01 / THE PROBLEM</p>
+    <h2 id="case-problem-title" class="heading-2 text-4xl sm:text-56">A prompt is not a production workflow.</h2>
+    <p class="text-base text-muted mt-5 max-w-2xl">
+      A prompt-only lead scorer can produce a confident number with no evidence, invent a
+      company fact, or silently create a duplicate record. The dangerous part is not that the
+      output is obviously wrong; it is that it looks ready to paste into a system of record.
+    </p>
+  </div>
+  <div class="case-bento mt-10">
+    {% for item in [
+      {"n":"01","title":"Unknown is a valid state","body":"If identity or evidence is ambiguous, Verdict returns the questions that would unblock a decision instead of manufacturing a score."},
+      {"n":"02","title":"Evidence is an interface","body":"Facts carry a source URL, quote, and verification status. A reviewer can inspect the grounding without trusting a hidden chain of thought."},
+      {"n":"03","title":"Writes are proposals","body":"CRM changes and outreach drafts are reviewable diffs. The system can prepare work, but a person owns the consequential action."}
+    ] %}
+    <article class="card card-lift p-6 reveal" style="--reveal-delay:{{ loop.index0 * 80 }}ms;">
+      <span class="case-index">{{ item.n }}</span>
+      <h3 class="text-xl font-semibold mt-6">{{ item.title }}</h3>
+      <p class="text-sm text-muted mt-3 leading-relaxed">{{ item.body }}</p>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="section-dark" aria-labelledby="case-responsibilities-title">
+  <div class="container-5xl py-16">
+    <div class="reveal">
+      <p class="label label-lime mb-3">02 / RESPONSIBILITY MAP</p>
+      <h2 id="case-responsibilities-title" class="heading-2 text-4xl sm:text-56">The model handles language. Code owns the decision.</h2>
+      <p class="text-base text-muted mt-5 max-w-2xl">This boundary is the core design choice. It keeps probabilistic work useful while keeping business consequences inspectable and testable.</p>
+    </div>
+    <div class="responsibility-grid mt-10 reveal" style="--reveal-delay:100ms;">
+      <div class="responsibility-column">
+        <div class="responsibility-head"><span class="case-index">A</span><h3>Model work</h3></div>
+        <ul>
+          <li>Classify the inbound message into approved categories.</li>
+          <li>Extract explicitly stated facts into a fixed schema.</li>
+          <li>Judge entailment and flag instruction-like page content.</li>
+          <li>Draft language from verified facts only.</li>
+        </ul>
+      </div>
+      <div class="responsibility-column responsibility-code">
+        <div class="responsibility-head"><span class="case-index">B</span><h3>Deterministic code</h3></div>
+        <ul>
+          <li>Validate, normalize, resolve identity, and prevent duplicate writes.</li>
+          <li>Open or close the evidence gate before scoring.</li>
+          <li>Apply ICP points, vetoes, bands, and missing-information rules.</li>
+          <li>Persist audit events, retries, approvals, and spend controls.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="case-callout mt-8 reveal" style="--reveal-delay:180ms;">
+      <span class="compare-mark yes" aria-hidden="true">&#10003;</span>
+      <p><strong>Engineering principle:</strong> the system never asks the model to make a decision that can be expressed as a rule and verified in a test.</p>
+    </div>
+  </div>
+</section>
+
+<section class="container-5xl py-16" aria-labelledby="case-failure-title">
+  <div class="case-section-heading reveal">
+    <p class="label mb-3">03 / FAILURE ANALYSIS</p>
+    <h2 id="case-failure-title" class="heading-2 text-4xl sm:text-56">The ambiguous lead that should not receive a score.</h2>
+    <p class="text-base text-muted mt-5 max-w-2xl">
+      “Fieldwork Group” resolves to multiple candidate companies. A naive system picks the most
+      similar name and continues. Verdict stops at identity resolution and creates an explicit
+      handoff for a human.
+    </p>
+  </div>
+  <div class="failure-timeline mt-10">
+    {% for item in [
+      {"n":"OBSERVED","title":"The tempting shortcut","body":"Name similarity looked high enough to keep going, but there was no exact email or domain match. Continuing would have attached research to the wrong account."},
+      {"n":"ROOT CAUSE","title":"Identity uncertainty was treated as a score","body":"The naive design mixed a probabilistic match with downstream qualification. That made a weak identity look like strong evidence."},
+      {"n":"FIX","title":"Possible matches now stop the workflow","body":"Only exact, confident matches may proceed. Possible matches propose no merge, emit no score, and return the candidate list plus unblocking questions."},
+      {"n":"REGRESSION","title":"The failure is now executable","body":"The scenario is held in the guided demo and the evaluation suite. A future change cannot silently reintroduce the shortcut without a failing test."}
+    ] %}
+    <article class="failure-step reveal" style="--reveal-delay:{{ loop.index0 * 70 }}ms;">
+      <span class="label">{{ item.n }}</span>
+      <div><h3 class="text-lg font-semibold">{{ item.title }}</h3><p class="text-sm text-muted mt-2 leading-relaxed">{{ item.body }}</p></div>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="section-dark" aria-labelledby="case-proof-title">
+  <div class="container-5xl py-16">
+    <div class="reveal">
+      <p class="label label-lime mb-3">04 / MEASURED PROOF</p>
+      <h2 id="case-proof-title" class="heading-2 text-4xl sm:text-56">The claims point to an artifact.</h2>
+    </div>
+    <div class="case-proof-grid mt-10">
+      <article class="card p-6 reveal" style="--reveal-delay:80ms;">
+        <span class="case-index">01</span>
+        <h3 class="text-xl font-semibold mt-6">Evaluation</h3>
+        <p class="text-sm text-muted mt-3 leading-relaxed">A labeled suite grades outcomes, qualification bands, false scores, false refusals, and injection leakage across development and held-out cases.</p>
+        {% if run %}<p class="case-proof-value mt-6">{{ run.passed_cases }}/{{ run.total_cases }} <span>latest cases passed &middot; {{ run.model }}</span></p>{% endif %}
+        <a href="/evals" class="btn-outline px-4 py-2 mt-6">Open the scorecard &rarr;</a>
+      </article>
+      <article class="card p-6 reveal" style="--reveal-delay:160ms;">
+        <span class="case-index">02</span>
+        <h3 class="text-xl font-semibold mt-6">Operations</h3>
+        <p class="text-sm text-muted mt-3 leading-relaxed">The same Postgres-backed audit trail exposes stage latency, completion, spend, stuck jobs, and duplicate-write prevention on a live operations page.</p>
+        <a href="/operations" class="btn-outline px-4 py-2 mt-6">Inspect operations &rarr;</a>
+      </article>
+      <article class="card p-6 reveal" style="--reveal-delay:240ms;">
+        <span class="case-index">03</span>
+        <h3 class="text-xl font-semibold mt-6">Source and CI</h3>
+        <p class="text-sm text-muted mt-3 leading-relaxed">The repository includes the API, worker, domain rules, tests, deterministic fallbacks, and a CI workflow so the demo is reproducible rather than a staged screen.</p>
+        <a href="https://github.com/ArielMagalsoDev/verdict" target="_blank" rel="noopener noreferrer" class="btn-outline px-4 py-2 mt-6">Read the repository &rarr;</a>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="container-5xl py-16" aria-labelledby="case-ownership-title">
+  <div class="grid-responsive items-stretch" style="grid-template-columns:1fr 1fr; gap:1.25rem;">
+    <div class="reveal">
+      <p class="label mb-3">05 / OWNERSHIP</p>
+      <h2 id="case-ownership-title" class="heading-2 text-4xl sm:text-52">What I built</h2>
+      <p class="text-base text-muted mt-5">I independently designed and implemented the system boundary, application, evaluation suite, database model, operations view, interface, and deployment path.</p>
+    </div>
+    <div class="card card-lift p-7 reveal" style="--reveal-delay:100ms;">
+      <ul class="ownership-list">
+        {% for item in ["FastAPI service and durable Postgres job queue", "Identity-first pipeline and evidence-sufficiency gate", "Deterministic scoring, CRM change sets, and human approval", "Evaluation harness with development and held-out splits", "Retry, rate-limit, spend-cap, audit, and observability controls", "Guided demo, integration blueprint, and recruiter-facing documentation"] %}
+        <li><span class="compare-mark yes" aria-hidden="true">&#10003;</span><span>{{ item }}</span></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="case-cta mt-12 reveal" style="--reveal-delay:160ms;">
+    <div><p class="label mb-2">//THE FIVE-MINUTE ROUTE</p><p class="heading-2 text-3xl">Run one decision, then inspect the engineering behind it.</p></div>
+    <div class="flex flex-wrap gap-3"><a href="/demo" class="btn-dark-icon"><span class="icon-square" aria-hidden="true">&rarr;</span>Run Verdict</a><a href="mailto:hello@arielmagalso.com" class="btn-outline px-5 py-3">Talk with Ariel</a></div>
+  </div>
+</section>
+
+{% endblock %}

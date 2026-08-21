@@ -17,6 +17,13 @@
   };
   var POLL_MS = 750;
   var MAX_POLLS = 120;
+  var runStartedAt = 0;
+  var PIPELINE_STAGES = [
+    { label: "Resolve identity", events: ["identity_resolution"] },
+    { label: "Gather evidence", events: ["classify_message", "find_research_source", "extract_facts", "verify_facts"] },
+    { label: "Gate and score", events: ["qualify"] },
+    { label: "Prepare review", events: ["propose_crm_change_set", "draft_outreach", "check_draft_claims"] },
+  ];
 
   var turnstileToken = "";
   window.__onTurnstileToken = function (token) { turnstileToken = token; };
@@ -248,23 +255,30 @@
   }
 
   function renderResult(state, outcome, replayed) {
+    var elapsed = runStartedAt ? Math.max(0, Math.round((Date.now() - runStartedAt) / 100) / 10) : null;
     var html =
-      '<div class="card p-6 flex flex-wrap items-center gap-4 justify-between">' +
-      '<div><span class="pill badge-outcome-' + outcome + '">' + (OUTCOME_LABEL[outcome] || outcome) + "</span>" +
-      '<p class="text-sm text-muted mt-2" style="max-width:36rem;">' + (OUTCOME_EXPLAINER[outcome] || "") + "</p></div>";
-    if (replayed) html += '<span class="text-xs text-muted font-display">served from cache</span>';
+      '<div class="result-level result-outcome"><div class="result-level-label">01 / RESPONSIBLE OUTCOME</div><div>' +
+      '<span class="pill badge-outcome-' + outcome + '">' + (OUTCOME_LABEL[outcome] || outcome) + "</span>" +
+      '<p class="text-base text-muted mt-3" style="max-width:42rem;">' + (OUTCOME_EXPLAINER[outcome] || "") + "</p></div>" +
+      '<div class="result-meta">' + (replayed ? "Cached guided result" : (elapsed !== null ? elapsed + "s end to end" : "Live pipeline")) + "</div>";
     html += "</div>";
 
-    html += '<div class="grid-responsive mt-6" style="grid-template-columns: 1fr 1fr;">';
+    html += '<section class="result-level mt-6"><div class="result-level-label">02 / VERIFIED INPUTS AND EVIDENCE</div><div class="grid-responsive" style="grid-template-columns: 1fr 1fr;">';
     html += renderInboundPanel(state.lead);
     html += renderEvidencePanel(state);
+    html += "</div></section>";
+    html += '<section class="result-level mt-6"><div class="result-level-label">03 / DETERMINISTIC DECISION</div><div class="grid-responsive" style="grid-template-columns: 1fr 1fr;">';
     html += renderQualificationPanel(state);
     html += renderCrmActionPanel(state);
-    html += "</div>";
+    html += "</div></section>";
 
+    html += '<section class="result-level mt-6"><div class="result-level-label">04 / HUMAN CONTROL BOUNDARY</div>';
     if (state.draft) {
-      html += '<div class="mt-6">' + renderDraftPanel(state.lead.id, state.draft) + "</div>";
+      html += renderDraftPanel(state.lead.id, state.draft);
+    } else {
+      html += '<div class="card p-5"><p class="text-sm text-muted">No outreach is proposed for this outcome. The workflow stops without sending or writing anything.</p></div>';
     }
+    html += "</section>";
 
     html += '<div class="mt-6">' + renderAuditTrail(state.audit_events) + "</div>";
 
@@ -274,12 +288,19 @@
   }
 
   function renderPending(state) {
-    // Progressive reveal while the worker is still processing: show what's
-    // landed in the audit trail so far, nothing else yet.
+    var events = state.audit_events || [];
+    var elapsed = runStartedAt ? Math.round((Date.now() - runStartedAt) / 100) / 10 : 0;
+    var stages = PIPELINE_STAGES.map(function (stage) {
+      var matching = events.filter(function (event) { return stage.events.indexOf(event.event_type) !== -1; });
+      var failed = matching.some(function (event) { return event.status === "failed"; });
+      var done = matching.some(function (event) { return event.status === "completed" || event.status === "skipped"; });
+      var active = matching.some(function (event) { return event.status === "started"; });
+      var status = failed ? "failed" : done ? "complete" : active ? "active" : "waiting";
+      return '<li class="pipeline-stage pipeline-stage-' + status + '"><span class="pipeline-stage-mark" aria-hidden="true"></span><div><strong>' + esc(stage.label) + '</strong><small>' + (status === "complete" ? "Completed" : status === "active" ? "In progress" : status === "failed" ? "Needs attention" : "Waiting") + "</small></div></li>";
+    }).join("");
     resultBox.style.display = "block";
     resultBox.innerHTML =
-      '<div class="card p-6"><p class="text-sm font-semibold" style="color: var(--signal);">Running pipeline&hellip;</p>' +
-      '<p class="text-xs text-muted mt-1">Status: ' + esc(state.status) + "</p></div>" +
+      '<div class="pipeline-progress" role="status" aria-live="polite"><div class="pipeline-progress-head"><div><p class="label">//LIVE DECISION TRACE</p><p class="font-semibold mt-2">Verdict is processing this lead</p></div><span class="font-display text-sm">' + elapsed.toFixed(1) + 's</span></div><ol>' + stages + "</ol></div>" +
       '<div class="mt-6">' + renderAuditTrail(state.audit_events) + "</div>";
   }
 
@@ -292,6 +313,11 @@
         if (state.status === "processing" && attempt < MAX_POLLS) {
           renderPending(state);
           setTimeout(function () { poll(statusUrl, replayed, attempt + 1); }, POLL_MS);
+          return;
+        }
+        if (state.status === "processing") {
+          setBusy(false);
+          showError("The live pipeline is taking longer than expected. No action was sent or written. Try a guided scenario again or inspect operations.");
           return;
         }
         setBusy(false);
@@ -315,6 +341,7 @@
   function submit(url, body, loadingEl) {
     if (busy) return;
     setBusy(true);
+    runStartedAt = Date.now();
     clearError();
     resultBox.style.display = "none";
     if (loadingEl) loadingEl.style.display = "block";

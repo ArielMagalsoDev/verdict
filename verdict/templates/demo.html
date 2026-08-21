@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 
-<section class="blueprint-grid relative overflow-hidden">
+<section id="guided-demo" class="blueprint-grid relative overflow-hidden" style="scroll-margin-top:6rem;">
   <div aria-hidden="true">
     <span class="pixel-block" style="top:0; right:96px; width:72px; height:36px;"></span>
     <span class="pixel-block" style="top:36px; right:24px; width:36px; height:36px;"></span>
@@ -19,12 +19,30 @@
 
 <div class="container-5xl" style="padding-bottom:3.5rem;">
 
+  <ol class="demo-process-rail mt-8" aria-label="Verdict processing sequence">
+    {% for step in ["Choose lead", "Resolve identity", "Gather evidence", "Gate", "Score", "Human review"] %}
+    <li><span>0{{ loop.index }}</span>{{ step }}</li>
+    {% endfor %}
+  </ol>
+
+  <div class="demo-orientation mt-8">
+    <p><strong>What to watch:</strong> the language model handles classification and extraction. Plain code owns evidence thresholds, scoring, and approval boundaries.</p>
+    <a href="/architecture" class="btn-outline px-4 py-2">See the implementation</a>
+  </div>
+
   <div class="grid-responsive mt-8" style="grid-template-columns: repeat(4, 1fr);" id="scenario-buttons">
     {% for s in scenarios %}
     <button type="button" class="card card-lift p-4 text-left relative scenario-btn" data-key="{{ s.key }}" style="position:relative; border:1px solid var(--line); background:var(--card);">
       <span class="ghost-num" aria-hidden="true" style="position:absolute; top:0.5rem; right:0.75rem; font-size:1.75rem;">0{{ loop.index }}</span>
       <div class="label label-ink">{{ s.title }}</div>
       <div class="text-sm text-muted mt-1_5 leading-snug">{{ s.blurb }}</div>
+      <div class="scenario-lesson">
+        {% if s.key == "sales-ready" %}Lesson: evidence can justify action without giving the model scoring authority.
+        {% elif s.key == "insufficient-evidence" %}Lesson: refusal is a useful result when identity or evidence is unresolved.
+        {% elif s.key == "duplicate-vendor" %}Lesson: identity resolution prevents a confident but damaging CRM write.
+        {% else %}Lesson: retrieved content is untrusted data, never an instruction source.
+        {% endif %}
+      </div>
       <div class="text-xs mt-2 font-semibold scenario-status" style="color: var(--signal); display:none;">Running pipeline&hellip;</div>
     </button>
     {% endfor %}
@@ -40,8 +58,9 @@
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   {% endif %}
 
-  <div class="mt-10 pt-8 border-t">
-    <p class="label mb-2">//OR BRING YOUR OWN LEAD</p>
+  <details class="custom-lead-disclosure mt-10">
+    <summary><span><span class="label">//OPTIONAL</span> Bring your own fictional lead</span><span aria-hidden="true">+</span></summary>
+    <div class="pt-8">
     <p class="text-sm text-muted max-w-2xl mb-4 leading-relaxed">
       Write your own lead and Verdict runs the exact same live pipeline on it — no script.
       Most real companies come back <strong>insufficient evidence</strong>, because Verdict only
@@ -102,7 +121,8 @@
         <span id="custom-submit-label">Run my lead through Verdict</span>
       </button>
     </form>
-  </div>
+    </div>
+  </details>
 
   <div id="result-anchor" style="scroll-margin-top: 5rem;">
     <div id="error-box" style="display:none;"></div>

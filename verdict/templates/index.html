@@ -11,23 +11,47 @@
   </div>
   <div class="container-6xl pt-20 pb-16 sm:pt-28 sm:pb-24 relative">
     <div class="text-center reveal">
-      <p class="label label-ink" style="display:inline-block; border:1px solid var(--line); border-radius:999px; padding:0.25rem 1rem; background:#fff;">//ARIEL MAGALSO &middot; AI ENGINEER</p>
+      <p class="label label-ink" style="display:inline-block; border:1px solid var(--line); border-radius:999px; padding:0.25rem 1rem; background:#fff;">//ARIEL MAGALSO &middot; APPLIED AI ENGINEER</p>
     </div>
     <div class="reveal" style="--reveal-delay:100ms;">
-      <h1 class="display-hero mt-10 text-center text-4xl sm:text-6xl lg:text-7xl">It never guesses</h1>
+      <h1 class="display-hero mt-10 text-center text-4xl sm:text-6xl lg:text-7xl">I ship AI that knows when to stop</h1>
     </div>
     <div class="text-center reveal" style="--reveal-delay:200ms;">
       <p class="text-lg mt-10 max-w-2xl mx-auto">
-        Verdict is a live AI lead-qualification system: identity resolution, cited research,
-        an evidence gate, deterministic scoring, and human approval — designed and built
-        end to end by one person.
+        I build production AI workflows that combine LLM reasoning with evidence gates,
+        deterministic rules, evaluation, and human approval. Verdict is the live proof: an
+        end-to-end lead-qualification system designed and built by one person.
       </p>
       <div class="flex flex-wrap items-center justify-center gap-3 mt-9">
         <a href="/demo" class="btn-dark-icon"><span class="icon-square" aria-hidden="true">&rarr;</span>Run the live demo</a>
-        <a href="/architecture" class="btn-white px-6 py-3_5 border">Review architecture</a>
+        <a href="#integrate" class="btn-white px-6 py-3_5 border">Fit it to your business</a>
       </div>
       <p class="label mt-8">No signup. Seeded fictional data. Nothing is sent.</p>
+      <div class="hero-proof-strip" aria-label="Hiring proof points">
+        <span><b>60</b> labeled eval cases</span>
+        <span><b>11</b> staged pipeline steps</span>
+        <span><b>100%</b> human-owned writes</span>
+      </div>
     </div>
+  </div>
+</section>
+
+<!-- QUICK INSPECTION -->
+<section class="container-6xl py-12" aria-labelledby="inspect-title">
+  <div class="inspect-panel reveal">
+    <div>
+      <p class="label mb-2">//SHORT ON TIME?</p>
+      <h2 id="inspect-title" class="heading-2 text-3xl">A five-minute route through the engineering.</h2>
+      <p class="text-sm text-muted mt-3 max-w-2xl">Start with one decision, then follow the artifact trail: architecture, evaluation failures, live operations, and source ownership.</p>
+    </div>
+    <nav class="inspect-links" aria-label="Project evidence">
+      <a href="/case-study"><span>01</span>Case study</a>
+      <a href="/demo"><span>02</span>Live demo</a>
+      <a href="/architecture"><span>03</span>Architecture</a>
+      <a href="/evals"><span>04</span>Evaluations</a>
+      <a href="/operations"><span>05</span>Operations</a>
+      <a href="https://github.com/ArielMagalsoDev/verdict" target="_blank" rel="noopener noreferrer"><span>06</span>Source</a>
+    </nav>
   </div>
 </section>
 
@@ -38,6 +62,86 @@
     {% for tech in ["Python", "FastAPI", "SQLAlchemy", "Claude API", "PostgreSQL", "Docker", "Pydantic", "Jinja2"] %}
     <span class="stack-log-item">{{ tech }}</span>
     {% endfor %}
+  </div>
+</section>
+
+<!-- BUSINESS INTEGRATION CONFIGURATOR -->
+<section id="integrate" class="container-6xl py-20 integration-section" style="scroll-margin-top:6rem;" aria-labelledby="integrate-title">
+  <div class="integration-intro reveal">
+    <div class="integration-eyebrow">
+      <p class="label">//FIT VERDICT TO YOUR WORKFLOW</p>
+      <p class="label integration-private"><span aria-hidden="true"></span>LOCAL PREVIEW &middot; ZERO DATA SENT</p>
+    </div>
+    <h2 id="integrate-title" class="heading-2 integration-title">
+      <span>The safeguards stay.</span>
+      <span class="integration-title-shift">The workflow adapts.</span>
+    </h2>
+    <div class="integration-intro-footer">
+      <p class="text-base text-muted">Choose the operating context and Verdict will map a private, illustrative integration blueprint. Change the inputs and see how the evidence, rules, approval points, and rollout would adapt.</p>
+      <dl class="integration-proof" aria-label="Configurator properties">
+        <div><dt>04</dt><dd>Industries</dd></div>
+        <div><dt>04</dt><dd>Controls</dd></div>
+        <div><dt>00</dt><dd>Data sent</dd></div>
+      </dl>
+    </div>
+  </div>
+
+  <div class="integration-shell mt-6 reveal" style="--reveal-delay:100ms;">
+    <header class="integration-dashboard-bar">
+      <div class="dashboard-product">
+        <span class="dashboard-product-mark" aria-hidden="true">V</span>
+        <div><strong>Verdict control room</strong><small>Integration blueprint</small></div>
+      </div>
+      <div class="dashboard-sections" aria-label="Dashboard sections">
+        <span class="is-active">Inputs</span><span>Workflow</span><span>Safeguards</span>
+      </div>
+      <div class="dashboard-live"><span aria-hidden="true"></span>Live preview</div>
+    </header>
+    <form id="integration-configurator" class="integration-controls" aria-describedby="integration-privacy">
+      <div class="configurator-head">
+        <p class="label label-ink">//CONFIGURE THE HANDOFF</p>
+        <p>Four choices shape the preview. Change any field and the blueprint updates immediately.</p>
+      </div>
+      <label>
+        <span class="configurator-label"><b>01</b><span>Industry</span></span>
+        <select id="integration-industry" name="industry">
+          <option value="saas">B2B SaaS</option>
+          <option value="professional">Professional services</option>
+          <option value="healthcare">Healthcare services</option>
+          <option value="field">Field operations</option>
+        </select>
+      </label>
+      <label>
+        <span class="configurator-label"><b>02</b><span>Inbound source</span></span>
+        <select id="integration-source" name="source">
+          <option value="website">Website form</option>
+          <option value="email">Email</option>
+          <option value="referral">Referral</option>
+          <option value="event">Event</option>
+          <option value="crm_import">CRM import</option>
+        </select>
+      </label>
+      <label>
+        <span class="configurator-label"><b>03</b><span>Destination</span></span>
+        <select id="integration-destination" name="destination">
+          <option value="hubspot">HubSpot</option>
+          <option value="salesforce">Salesforce</option>
+          <option value="crm">Another CRM</option>
+          <option value="webhook">Webhook / API</option>
+        </select>
+      </label>
+      <label>
+        <span class="configurator-label"><b>04</b><span>Approval policy</span></span>
+        <select id="integration-approval" name="approval">
+          <option value="every">Review every action</option>
+          <option value="uncertain">Review uncertain cases</option>
+          <option value="consequential">Review consequential writes</option>
+        </select>
+      </label>
+      <div id="integration-privacy" class="configurator-privacy"><span aria-hidden="true"></span><p><strong>Private by design</strong>No form submission, analytics event, storage, or network request.</p></div>
+    </form>
+
+    <div id="integration-blueprint" class="integration-blueprint" aria-live="polite" aria-atomic="true"></div>
   </div>
 </section>
 
@@ -204,16 +308,17 @@
   <div class="reveal">
     <p class="label mb-3">//THE MIND BEHIND THE WORK</p>
     <h2 class="heading-2 text-4xl sm:text-56">Ariel Magalso</h2>
-    <p class="text-lg mt-3">AI Engineer &middot; Philippines</p>
+    <p class="text-lg mt-3">Applied AI Engineer &middot; Philippines &middot; Remote-ready</p>
   </div>
   <div class="grid-responsive mt-10 items-stretch" style="grid-template-columns: 1fr 1fr; gap: 1.25rem;">
     <div class="reveal h-full">
       <div class="card card-lift p-7 h-full">
         <p class="text-base text-muted">
-          I independently designed and implemented Verdict's pipeline architecture,
-          application, evaluation suite, database, operational monitoring, interface, and
-          deployment. I turn ambiguous business workflows into reliable, human-in-the-loop
-          systems where traceability matters as much as speed.
+        I independently designed and implemented Verdict's pipeline architecture,
+        application, evaluation suite, database, operational monitoring, interface, and
+        deployment. I turn ambiguous business workflows into reliable, human-in-the-loop
+        systems where traceability matters as much as speed — and I can show the code,
+        test, and operating signal behind each claim.
         </p>
         <ul class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm mt-6 pt-5 border-t list-none">
           {% for c in ["AI workflow architecture", "CRM and operations automation", "Structured LLM extraction", "Evaluation and reliability testing", "Human approval workflows", "Monitoring, cost controls, and audit trails"] %}
@@ -231,7 +336,8 @@
           evaluation, and production automation with real safeguards.
         </p>
         <div class="flex flex-wrap gap-3 mt-8" style="margin-top:auto; padding-top:2rem;">
-          <a href="mailto:hello@arielmagalso.com" class="btn-white px-5 py-3">Email Ariel</a>
+          <a href="/case-study" class="btn-white px-5 py-3">Read the case study</a>
+          <a href="mailto:hello@arielmagalso.com" class="btn-ghost-dark px-5 py-3">Email Ariel</a>
           <a href="https://www.linkedin.com/in/magalsoariel" target="_blank" rel="noopener noreferrer" class="btn-ghost-dark px-5 py-3">LinkedIn</a>
           <a href="https://arielmagalso.com" target="_blank" rel="noopener noreferrer" class="btn-ghost-dark px-5 py-3">Full portfolio</a>
         </div>
@@ -264,10 +370,34 @@
   </div>
   <div class="reveal" style="--reveal-delay:200ms;">
     <div class="flex flex-wrap gap-3 mt-8">
-      <a href="/evals" class="btn-signal px-5 py-3">Review 60-case evals</a>
+      <a href="/case-study" class="btn-signal px-5 py-3">Read the case study</a>
+      <a href="/evals" class="btn-outline px-5 py-3">Review 60-case evals</a>
       <a href="/operations" class="btn-outline px-5 py-3">Inspect live operations</a>
       <a href="https://github.com/ArielMagalsoDev/verdict" target="_blank" rel="noopener noreferrer" class="btn-outline px-5 py-3">Read the source</a>
     </div>
+  </div>
+</section>
+
+<!-- ENGINEERING PROOF -->
+<section class="container-6xl py-16" id="engineering-proof" style="scroll-margin-top:6rem;" aria-labelledby="engineering-proof-title">
+  <div class="reveal">
+    <p class="label mb-3">//ENGINEERING PROOF</p>
+    <h2 id="engineering-proof-title" class="heading-2 text-4xl sm:text-56 max-w-3xl">Every important claim has a place to inspect.</h2>
+    <p class="text-base text-muted mt-5 max-w-2xl">The portfolio is designed as an evidence trail: run the behavior, inspect the boundary, measure the failure modes, and read the implementation.</p>
+  </div>
+  <div class="grid-responsive mt-10" style="grid-template-columns:repeat(3, 1fr); gap:1.25rem;">
+    {% for proof in [
+      {"n":"01","title":"Behavior","body":"The guided demo makes each pipeline stage visible and explains why the final outcome happened.","href":"/demo","link":"Run a scenario"},
+      {"n":"02","title":"Measurement","body":"The evals page separates development from held-out cases and shows false scores, false refusals, and confidence intervals.","href":"/evals","link":"View the scorecard"},
+      {"n":"03","title":"Operation","body":"The operations page reads live audit-event data for latency, spend, completion, stuck work, and duplicate prevention.","href":"/operations","link":"Inspect the signals"}
+    ] %}
+    <article class="card card-lift p-6 reveal" style="--reveal-delay:{{ loop.index0 * 80 }}ms;">
+      <span class="case-index">{{ proof.n }}</span>
+      <h3 class="text-xl font-semibold mt-6">{{ proof.title }}</h3>
+      <p class="text-sm text-muted mt-3 leading-relaxed">{{ proof.body }}</p>
+      <a href="{{ proof.href }}" class="btn-outline px-4 py-2 mt-6">{{ proof.link }} &rarr;</a>
+    </article>
+    {% endfor %}
   </div>
 </section>
 
@@ -393,4 +523,5 @@
 {% endblock %}
 {% block scripts %}
 <script src="/static/js/impact.js"></script>
+<script src="/static/js/integration.js?v=dashboard-1"></script>
 {% endblock %}
