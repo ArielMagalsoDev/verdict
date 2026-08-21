@@ -201,7 +201,13 @@ RAMP_FG = {1: "var(--outcome-duplicate-fg)", 2: "var(--outcome-insufficient-fg)"
 def home(request: Request, db: Session = Depends(db_session)):
     run = db.scalar(select(EvalRun).order_by(EvalRun.run_at.desc()))
     current_metric = (
-        {"value": f"{round(run.accuracy * 100)}%", "label": f"accuracy across {run.total_cases} cases"}
+        {
+            "value": f"{round(run.accuracy * 100)}%",
+            "label": (
+                f"accuracy across {run.total_cases} cases"
+                + (" · deterministic fallback" if run.model == "deterministic-fallback" else "")
+            ),
+        }
         if run
         else None
     )
@@ -257,10 +263,32 @@ CATEGORY_LABEL = {
 def evals(request: Request, db: Session = Depends(db_session)):
     run = db.scalar(select(EvalRun).order_by(EvalRun.run_at.desc()))
     accuracy_ci = wilson_interval(run.passed_cases, run.total_cases) if run else None
+    split_rows = {row["category"]: row for row in (run.category_breakdown if run else [])}
+    heldout = split_rows.get("split:heldout")
+    dev = split_rows.get("split:dev")
+    gate_reasons = []
+    if run:
+        if not heldout or heldout["accuracy"] < 0.95:
+            gate_reasons.append("held-out outcome agreement is below 95%")
+        if run.false_score_count:
+            gate_reasons.append(f"{run.false_score_count} false score(s) detected")
+        if run.false_refusal_count:
+            gate_reasons.append(f"{run.false_refusal_count} false refusal(s) detected")
+    release_ready = bool(run and not gate_reasons)
     return templates.TemplateResponse(
         request,
         "evals.html",
-        {"page": "evals", "run": run, "category_label": CATEGORY_LABEL, "accuracy_ci": accuracy_ci},
+        {
+            "page": "evals",
+            "run": run,
+            "category_label": CATEGORY_LABEL,
+            "accuracy_ci": accuracy_ci,
+            "dev_row": dev,
+            "heldout_row": heldout,
+            "release_ready": release_ready,
+            "gate_reasons": gate_reasons,
+            "is_fallback": bool(run and run.model == "deterministic-fallback"),
+        },
     )
 
 
@@ -295,6 +323,13 @@ def operations(request: Request, db: Session = Depends(db_session)):
             "completed": completed,
             "completion_rate": None if total_leads == 0 else round((completed / total_leads) * 100),
             "estimated_cost_per_lead": settings().estimated_cost_per_lead_usd,
+            "snapshot_at": datetime.now(UTC),
+            "environment_label": "Portfolio sandbox",
+            "database_label": (
+                "PostgreSQL"
+                if settings().sqlalchemy_database_url.startswith("postgresql")
+                else "SQLite local fallback"
+            ),
         },
     )
 

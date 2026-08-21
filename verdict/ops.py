@@ -63,15 +63,24 @@ def get_stuck_workflows(db: Session) -> list[dict]:
     cutoff = datetime.now(UTC) - timedelta(minutes=STUCK_THRESHOLD_MINUTES)
     rows = db.scalars(select(Lead).where(Lead.status == "processing", Lead.created_at < cutoff)).all()
     now = datetime.now(UTC)
-    return [
-        {
-            "id": str(lead.id),
-            "company_name": lead.company_name,
-            "created_at": lead.created_at,
-            "minutes_stuck": round((now - lead.created_at).total_seconds() / 60),
-        }
-        for lead in rows
-    ]
+    stuck = []
+    for lead in rows:
+        # SQLite returns DateTime values without timezone information even
+        # when the model column is declared timezone-aware. Normalize legacy
+        # rows before comparing them with the UTC clock so /operations never
+        # turns a stale processing row into a 500.
+        created_at = lead.created_at
+        if created_at.tzinfo is None:
+            created_at = created_at.replace(tzinfo=UTC)
+        stuck.append(
+            {
+                "id": str(lead.id),
+                "company_name": lead.company_name,
+                "created_at": created_at,
+                "minutes_stuck": round((now - created_at).total_seconds() / 60),
+            }
+        )
+    return stuck
 
 
 def get_duplicate_write_prevented_count(db: Session, hours_back: int = 24) -> int:

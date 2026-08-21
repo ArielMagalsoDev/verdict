@@ -126,19 +126,19 @@
         <h3 class="text-xl font-semibold mt-6">Evaluation</h3>
         <p class="text-sm text-muted mt-3 leading-relaxed">A labeled suite grades outcomes, qualification bands, false scores, false refusals, and injection leakage across development and held-out cases.</p>
         {% if run %}<p class="case-proof-value mt-6">{{ run.passed_cases }}/{{ run.total_cases }} <span>latest cases passed &middot; {{ run.model }}</span></p>{% endif %}
-        <a href="/evals" class="btn-outline px-4 py-2 mt-6">Open the scorecard &rarr;</a>
+        <div class="flex flex-wrap gap-2 mt-6"><a href="/evals" class="btn-outline px-4 py-2">Open the scorecard &rarr;</a><a href="https://github.com/ArielMagalsoDev/verdict/blob/main/verdict/evals/run.py" target="_blank" rel="noopener noreferrer" class="proof-text-link">Eval runner</a></div>
       </article>
       <article class="card p-6 reveal" style="--reveal-delay:160ms;">
         <span class="case-index">02</span>
         <h3 class="text-xl font-semibold mt-6">Operations</h3>
-        <p class="text-sm text-muted mt-3 leading-relaxed">The same Postgres-backed audit trail exposes stage latency, completion, spend, stuck jobs, and duplicate-write prevention on a live operations page.</p>
-        <a href="/operations" class="btn-outline px-4 py-2 mt-6">Inspect operations &rarr;</a>
+        <p class="text-sm text-muted mt-3 leading-relaxed">The same Postgres-backed audit trail exposes stage latency, completion, spend, stuck jobs, and duplicate-write prevention on an inspectable operations page.</p>
+        <div class="flex flex-wrap gap-2 mt-6"><a href="/operations" class="btn-outline px-4 py-2">Inspect operations &rarr;</a><a href="https://github.com/ArielMagalsoDev/verdict/blob/main/verdict/ops.py" target="_blank" rel="noopener noreferrer" class="proof-text-link">Ops queries</a></div>
       </article>
       <article class="card p-6 reveal" style="--reveal-delay:240ms;">
         <span class="case-index">03</span>
         <h3 class="text-xl font-semibold mt-6">Source and CI</h3>
         <p class="text-sm text-muted mt-3 leading-relaxed">The repository includes the API, worker, domain rules, tests, deterministic fallbacks, and a CI workflow so the demo is reproducible rather than a staged screen.</p>
-        <a href="https://github.com/ArielMagalsoDev/verdict" target="_blank" rel="noopener noreferrer" class="btn-outline px-4 py-2 mt-6">Read the repository &rarr;</a>
+        <div class="flex flex-wrap gap-2 mt-6"><a href="https://github.com/ArielMagalsoDev/verdict" target="_blank" rel="noopener noreferrer" class="btn-outline px-4 py-2">Read the repository &rarr;</a><a href="https://github.com/ArielMagalsoDev/verdict/tree/main/tests" target="_blank" rel="noopener noreferrer" class="proof-text-link">Open tests</a></div>
       </article>
     </div>
   </div>

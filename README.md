@@ -108,9 +108,10 @@ scorecard to the database for `/evals` to render — including the dev-vs-held-o
 false-score/false-refusal counts. Works identically with or without an API key; the page labels
 which mode produced the last run.
 
-The latest run against production (real Claude calls, real Postgres writes) scored **57/60 (95%)** —
-100% on the dev set, 92% held out — at roughly $0.01 per lead. The live numbers are always the ones
-published at [/evals](https://verdict.arielmagalso.com/evals).
+A recorded production run with real Claude calls and real Postgres writes scored **57/60 (95%)** —
+100% on the dev set, 92% held out — at roughly $0.01 per lead. Local runs without an API key use
+the deterministic fallback and may show a different score; `/evals` labels the mode and publishes
+the current database-backed run.
 
 The scorecard reports 95% Wilson confidence intervals for the overall result and every slice. This
 is deliberately more honest than presenting a small category's point estimate as certainty: a 5/5

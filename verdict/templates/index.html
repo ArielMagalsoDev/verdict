@@ -26,7 +26,7 @@
         <a href="/demo" class="btn-dark-icon"><span class="icon-square" aria-hidden="true">&rarr;</span>Run the live demo</a>
         <a href="#integrate" class="btn-white px-6 py-3_5 border">Fit it to your business</a>
       </div>
-      <p class="label mt-8">No signup. Seeded fictional data. Nothing is sent.</p>
+      <p class="label mt-8">No signup. Seeded fictional data. No external data is sent.</p>
       <div class="hero-proof-strip" aria-label="Hiring proof points">
         <span><b>60</b> labeled eval cases</span>
         <span><b>11</b> staged pipeline steps</span>
@@ -42,7 +42,7 @@
     <div>
       <p class="label mb-2">//SHORT ON TIME?</p>
       <h2 id="inspect-title" class="heading-2 text-3xl">A five-minute route through the engineering.</h2>
-      <p class="text-sm text-muted mt-3 max-w-2xl">Start with one decision, then follow the artifact trail: architecture, evaluation failures, live operations, and source ownership.</p>
+      <p class="text-sm text-muted mt-3 max-w-2xl">Start with one decision, then follow the artifact trail: architecture, evaluation misses, inspectable operations, and source ownership.</p>
     </div>
     <nav class="inspect-links" aria-label="Project evidence">
       <a href="/case-study"><span>01</span>Case study</a>
@@ -372,7 +372,7 @@
     <div class="flex flex-wrap gap-3 mt-8">
       <a href="/case-study" class="btn-signal px-5 py-3">Read the case study</a>
       <a href="/evals" class="btn-outline px-5 py-3">Review 60-case evals</a>
-      <a href="/operations" class="btn-outline px-5 py-3">Inspect live operations</a>
+      <a href="/operations" class="btn-outline px-5 py-3">Inspect operations</a>
       <a href="https://github.com/ArielMagalsoDev/verdict" target="_blank" rel="noopener noreferrer" class="btn-outline px-5 py-3">Read the source</a>
     </div>
   </div>
@@ -389,7 +389,7 @@
     {% for proof in [
       {"n":"01","title":"Behavior","body":"The guided demo makes each pipeline stage visible and explains why the final outcome happened.","href":"/demo","link":"Run a scenario"},
       {"n":"02","title":"Measurement","body":"The evals page separates development from held-out cases and shows false scores, false refusals, and confidence intervals.","href":"/evals","link":"View the scorecard"},
-      {"n":"03","title":"Operation","body":"The operations page reads live audit-event data for latency, spend, completion, stuck work, and duplicate prevention.","href":"/operations","link":"Inspect the signals"}
+      {"n":"03","title":"Operation","body":"The operations page reads persisted audit-event data for latency, spend, completion, stuck work, and duplicate prevention.","href":"/operations","link":"Inspect the signals"}
     ] %}
     <article class="card card-lift p-6 reveal" style="--reveal-delay:{{ loop.index0 * 80 }}ms;">
       <span class="case-index">{{ proof.n }}</span>
@@ -426,7 +426,7 @@
       {"icon": "link-2", "title": "Evidence-linked", "body": "Every company fact and score criterion cites a source a human can open and check."},
       {"icon": "braces", "title": "Deterministic where it counts", "body": "The model extracts and classifies; plain code applies the rules and arithmetic."},
       {"icon": "user-check", "title": "Human-in-the-loop", "body": "Consequential actions — outreach, CRM writes, merges — wait for explicit approval."},
-      {"icon": "activity", "title": "Operable", "body": "Latency, cost, failures, and audit events are visible on a live operations page."},
+      {"icon": "activity", "title": "Operable", "body": "Latency, cost, failures, and audit events are visible on an inspectable operations page."},
     ] %}
     <div class="reveal" style="--reveal-delay: {{ loop.index0 * 80 }}ms;">
       <div class="card card-lift p-6 h-full">

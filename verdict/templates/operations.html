@@ -12,27 +12,34 @@
   <div class="container-5xl pt-16 pb-14 sm:pt-24 sm:pb-16">
     <div class="reveal">
       <p class="label mb-4">//OPERATIONS</p>
-      <h1 class="display-hero text-4xl sm:text-6xl">Live, not staged.</h1>
+      <h1 class="display-hero text-4xl sm:text-6xl">Inspectable operations, at portfolio scale.</h1>
       <p class="text-muted mt-6 max-w-2xl">
-        Every number below is read live from the same Postgres tables the pipeline writes to
-        while processing real requests — nothing on this page is mocked or hand-entered. Small
-        numbers are expected: this is a portfolio demo, not a production tenant with thousands
-        of leads/day.
+        Every number below is read live from the same {{ database_label }} tables the pipeline writes to
+        while processing requests. Small numbers are expected: this is a portfolio sandbox,
+        not a production tenant with thousands of leads per day. The point is to make latency,
+        spend, retries, and stuck work inspectable.
       </p>
+      <p class="text-xs text-muted mt-4">The snapshot includes the seeded 60-case evaluation run and guided demo replays; it is not customer traffic.</p>
     </div>
   </div>
 </section>
 
 <div class="container-5xl" style="padding-bottom:3.5rem;">
 
+  <div class="ops-snapshot mt-8" role="status" aria-label="Operations snapshot">
+    <div><span class="ops-snapshot-dot" aria-hidden="true"></span><strong>{{ environment_label }}</strong></div>
+    <span>Read from {{ database_label }}</span>
+    <span>Snapshot {{ snapshot_at.strftime("%Y-%m-%d %H:%M UTC") }}</span>
+  </div>
+
   <div class="grid-responsive mt-10" style="grid-template-columns: repeat(4, 1fr);">
     <div class="card card-lift p-5"><div class="stat-num">{{ total_leads }}</div><div class="text-sm text-muted mt-1">Leads processed</div></div>
     <div class="card card-lift p-5"><div class="stat-num">{{ (completion_rate ~ "%") if completion_rate is not none else "—" }}</div><div class="text-sm text-muted mt-1">Completion rate</div></div>
-    <div class="card card-lift p-5"><div class="stat-num">${{ "%.3f" | format(spend_today) }}</div><div class="text-sm text-muted mt-1">Metered spend today (real)</div></div>
+    <div class="card card-lift p-5"><div class="stat-num">${{ "%.3f" | format(spend_today) }}</div><div class="text-sm text-muted mt-1">Metered demo spend today</div></div>
     <div class="card card-lift p-5"><div class="stat-num">${{ "%.3f" | format(estimated_cost_per_lead) }}</div><div class="text-sm text-muted mt-1">Estimated cost / lead</div></div>
   </div>
 
-  <h2 class="label mt-12 mb-3">//ALERTS</h2>
+  <h2 class="label mt-12 mb-3">//OPERATING SIGNALS</h2>
   <div style="display:flex; flex-direction:column; gap:0.75rem;">
     {% for a in alerts %}
     {% set cls = "badge-outcome-qualified" if a.severity == "ok" else ("badge-outcome-insufficient_evidence" if a.severity == "warn" else "badge-outcome-disqualified") %}
