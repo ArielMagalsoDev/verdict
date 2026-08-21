@@ -14,6 +14,22 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+      - name: Reject tracked credentials and private environment files
+        shell: bash
+        run: |
+          sensitive_files="$(git ls-files | grep -E '(^|/)(\.env($|\.)|id_(rsa|dsa|ecdsa|ed25519)($|\.)|[^/]+\.(pem|p12|pfx|key))' | grep -v -E '(^|/)\.env\.example$' || true)"
+          if [[ -n "$sensitive_files" ]]; then
+            echo "::error::Sensitive file names are tracked:"
+            printf '%s\n' "$sensitive_files"
+            exit 1
+          fi
+
+          credential_files="$(git grep -Il -E '(sk-ant-|sk-proj-|github_pat_|gh[pousr]_|AKIA[0-9A-Z]{16}|xox[baprs]-|BEGIN [A-Z ]*PRIVATE KEY)' -- . ':(exclude).env.example' ':(exclude).github/workflows/ci.yml' || true)"
+          if [[ -n "$credential_files" ]]; then
+            echo "::error::Potential credential patterns were found in:"
+            printf '%s\n' "$credential_files"
+            exit 1
+          fi
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
