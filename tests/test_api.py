@@ -55,6 +55,7 @@ def test_demo_exposes_guided_sequence_and_optional_custom_form(client):
     for label in ("Choose lead", "Resolve identity", "Gather evidence", "Gate", "Score", "Human review"):
         assert label in body
     assert "custom-lead-disclosure" in body
+    assert "turnstile" not in body.lower()
 
 
 def test_source_page_200_for_known_slug_404_for_unknown(client):

@@ -8,7 +8,6 @@ DB_PATH = pathlib.Path(tempfile.gettempdir()) / "verdict_pytest.db"
 os.environ["DATABASE_URL"] = f"sqlite:///{DB_PATH}"
 os.environ["ANTHROPIC_API_KEY"] = ""
 os.environ["ADMIN_TOKEN"] = "test-admin-token"
-os.environ["TURNSTILE_SECRET_KEY"] = ""
 os.environ["RATE_LIMIT_PER_HOUR"] = "20"
 os.environ["DAILY_SPEND_CAP_USD"] = "5.0"
 

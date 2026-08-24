@@ -23,8 +23,6 @@ class Settings(BaseSettings):
     anthropic_model: str = "claude-haiku-4-5-20251001"
     admin_token: str = "change-me"
     evidence_floor: int = 4
-    turnstile_secret_key: str = ""
-    turnstile_site_key: str = ""
     rate_limit_per_hour: int = 20
     daily_spend_cap_usd: float = 5.0
     estimated_cost_per_lead_usd: float = 0.01

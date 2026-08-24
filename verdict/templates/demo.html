@@ -48,16 +48,6 @@
     {% endfor %}
   </div>
 
-  {% if turnstile_site_key %}
-  <div class="mt-6">
-    <p class="label mb-2">//BOT CHECK</p>
-    <div class="card p-3" style="display:inline-flex;">
-      <div id="turnstile-widget" data-sitekey="{{ turnstile_site_key }}"></div>
-    </div>
-  </div>
-  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-  {% endif %}
-
   <details class="custom-lead-disclosure mt-10">
     <summary><span><span class="label">//OPTIONAL</span> Bring your own fictional lead</span><span aria-hidden="true">+</span></summary>
     <div class="pt-8">

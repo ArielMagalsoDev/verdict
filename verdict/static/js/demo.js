@@ -25,9 +25,6 @@
     { label: "Prepare review", events: ["propose_crm_change_set", "draft_outreach", "check_draft_claims"] },
   ];
 
-  var turnstileToken = "";
-  window.__onTurnstileToken = function (token) { turnstileToken = token; };
-
   var scenarioButtons = document.querySelectorAll(".scenario-btn");
   var autofillButtons = document.querySelectorAll(".autofill-btn");
   var form = document.getElementById("custom-lead-form");
@@ -349,7 +346,7 @@
     fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(Object.assign({}, body, { turnstile_token: turnstileToken })),
+      body: JSON.stringify(body),
     })
       .then(function (res) { return res.json().then(function (json) { return { ok: res.ok, status: res.status, json: json }; }); })
       .then(function (r) {
@@ -412,23 +409,5 @@
       if (submitLabel) submitLabel.textContent = "Running pipeline…";
       submit("/api/v1/leads", body, null);
     });
-  }
-
-  // Turnstile callback bridge (rendered widget calls window.turnstile.render
-  // with this as the callback — see the inline snippet in demo.html when a
-  // site key is configured).
-  var widget = document.getElementById("turnstile-widget");
-  if (widget && widget.getAttribute("data-sitekey")) {
-    var tryRender = function () {
-      if (!window.turnstile) return;
-      window.turnstile.render(widget, {
-        sitekey: widget.getAttribute("data-sitekey"),
-        callback: window.__onTurnstileToken,
-        "error-callback": function () { window.__onTurnstileToken(""); },
-      });
-    };
-    var iv = setInterval(function () {
-      if (window.turnstile) { clearInterval(iv); tryRender(); }
-    }, 200);
   }
 })();

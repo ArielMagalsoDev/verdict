@@ -86,8 +86,8 @@ engineered to land on a different one of the four responsible outcomes:
 - The worker claims queued jobs with `FOR UPDATE SKIP LOCKED`; failed jobs retry up to 3 times
   before `failed_permanent`, refunding reserved spend.
 - Every model call has a deterministic fallback, used whenever `ANTHROPIC_API_KEY` is unset.
-- Turnstile bot-check, a per-IP hourly rate limit, and a race-safe daily spend cap all guard
-  `POST /api/v1/leads` — all three are env-gated and never block local/demo mode.
+- A per-IP hourly rate limit and a race-safe daily spend cap guard
+  `POST /api/v1/leads`; both thresholds are environment-configurable and enforced server-side.
 - CRM changes are proposed as diffs and remain `pending` until
   `POST /api/v1/crm-change-sets/{id}/approve` receives the configured `X-Admin-Token`. Replaying an
   approval is safe and never creates a second CRM record (`applied_changes` is the idempotency
@@ -152,8 +152,8 @@ VERDICT_VPS_HOST=user@your-host VERDICT_VPS_KEY=~/.ssh/id_ed25519 ./deploy-vps.s
 The server's `.env` and its Traefik routing labels in `docker-compose.override.yml` are left
 untouched, so secrets live only on the box and are never committed to this repo.
 
-Cloudflare Turnstile guards the public lead form, with the production domain registered on the
-widget. The bot check fails closed, so submissions only work on that domain.
+The public demo has no third-party bot challenge. Per-IP rate limiting and the daily spend cap
+remain active so guided scenarios stay frictionless without removing the server-side cost controls.
 
 ## Project layout
 

@@ -19,7 +19,7 @@ from .domain.changeset import derive_outcome
 from .domain.validate import ValidationError, validate_lead
 from .evals.stats import wilson_interval
 from .fixtures import DEMO_SCENARIOS, PROJECTS, find_mini_web_page_by_slug, find_scenario
-from .limits import check_rate_limit, refund_spend, reserve_spend, verify_turnstile
+from .limits import check_rate_limit, refund_spend, reserve_spend
 from .models import (
     AppliedChange,
     AuditEvent,
@@ -229,7 +229,7 @@ def demo(request: Request):
     return templates.TemplateResponse(
         request,
         "demo.html",
-        {"page": "demo", "scenarios": DEMO_SCENARIOS, "turnstile_site_key": settings().turnstile_site_key},
+        {"page": "demo", "scenarios": DEMO_SCENARIOS},
     )
 
 
@@ -351,16 +351,7 @@ def _client_key(request: Request) -> str:
 
 def _submit_lead(db: Session, request: Request, raw: dict, scenario_key: str | None = None) -> LeadAccepted:
     client_key = _client_key(request)
-    turnstile_token = str(raw.get("turnstile_token") or "")
-
-    # Turnstile runs first, ahead of even the idempotency lookup — applies
-    # uniformly to guided-scenario clicks and raw-payload submissions alike.
-    if not verify_turnstile(turnstile_token, client_key):
-        raise HTTPException(
-            403, detail={"error": "bot_check_failed", "message": "Couldn't verify you're human — please try again."}
-        )
-
-    payload = {k: v for k, v in raw.items() if k != "turnstile_token"}
+    payload = raw
     try:
         lead_dict, email_normalized, _website_normalized = validate_lead(payload)
     except ValidationError as exc:
@@ -487,13 +478,7 @@ async def scenario(key: str, request: Request, db: Session = Depends(db_session)
     found = find_scenario(key)
     if not found:
         raise HTTPException(404, detail={"error": "unknown scenarioKey"})
-    try:
-        body = await request.json()
-    except Exception:
-        body = {}
     payload = dict(found["lead"])
-    if isinstance(body, dict) and body.get("turnstile_token"):
-        payload["turnstile_token"] = body["turnstile_token"]
     return _submit_lead(db, request, payload, scenario_key=found["key"])
 
 
