@@ -133,6 +133,7 @@ def serialize_lead(db: Session, lead: Lead) -> dict:
         "lead": {
             "id": str(lead.id),
             "status": lead.status,
+            "scenario_key": lead.scenario_key,
             "submission_id": lead.submission_id,
             "source": lead.source,
             "first_name": lead.first_name,

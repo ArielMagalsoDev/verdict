@@ -121,6 +121,7 @@ def test_get_lead_state_reflects_completed_pipeline(client, db_session):
     assert body["status"] == "completed"
     assert body["outcome"] == "qualified"
     assert body["lead"]["company_name"] == "Harborline Clinics"
+    assert body["lead"]["scenario_key"] == "sales-ready"
     assert body["decision"]["score"] == 100
     assert len(body["audit_events"]) > 0
 

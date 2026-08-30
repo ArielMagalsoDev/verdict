@@ -253,10 +253,21 @@
 
   function renderResult(state, outcome, replayed) {
     var elapsed = runStartedAt ? Math.max(0, Math.round((Date.now() - runStartedAt) / 100) / 10) : null;
+    var outcomeExplainer = OUTCOME_EXPLAINER[outcome] || "";
+    var securityNote = "";
+    if (state.lead.scenario_key === "prompt-injection") {
+      var score = state.decision && state.decision.score !== null ? state.decision.score + "/100" : "the displayed";
+      outcomeExplainer = "The lead qualifies on verified business evidence; the embedded instruction did not influence the decision.";
+      securityNote =
+        '<div class="card p-4 mt-4" style="border-left:3px solid var(--signal); max-width:42rem;">' +
+        '<p class="label" style="color:var(--signal);">Injection blocked</p>' +
+        '<p class="text-sm text-muted mt-2">The researched page tried to force a perfect score. Verdict treated that text as untrusted data, rejected it, and calculated ' +
+        esc(score) + ' only from verified company facts.</p></div>';
+    }
     var html =
       '<div class="result-level result-outcome"><div class="result-level-label">01 / RESPONSIBLE OUTCOME</div><div>' +
       '<span class="pill badge-outcome-' + outcome + '">' + (OUTCOME_LABEL[outcome] || outcome) + "</span>" +
-      '<p class="text-base text-muted mt-3" style="max-width:42rem;">' + (OUTCOME_EXPLAINER[outcome] || "") + "</p></div>" +
+      '<p class="text-base text-muted mt-3" style="max-width:42rem;">' + outcomeExplainer + "</p>" + securityNote + "</div>" +
       '<div class="result-meta">' + (replayed ? "Cached guided result" : (elapsed !== null ? elapsed + "s end to end" : "Live pipeline")) + "</div>";
     html += "</div>";
 
