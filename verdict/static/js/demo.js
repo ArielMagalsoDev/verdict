@@ -259,13 +259,14 @@
       var score = state.decision && state.decision.score !== null ? state.decision.score + "/100" : "the displayed";
       outcomeExplainer = "The lead qualifies on verified business evidence; the embedded instruction did not influence the decision.";
       securityNote =
-        '<div class="card p-4 mt-4" style="border-left:3px solid var(--signal); max-width:42rem;">' +
-        '<p class="label" style="color:var(--signal);">Injection blocked</p>' +
+        '<div class="card p-4 mt-4" style="border-color:var(--outcome-disqualified-fg); border-left:4px solid var(--outcome-disqualified-fg); max-width:42rem;">' +
+        '<p class="label" style="color:var(--outcome-disqualified-fg);">Security outcome &middot; Injection blocked</p>' +
         '<p class="text-sm text-muted mt-2">The researched page tried to force a perfect score. Verdict treated that text as untrusted data, rejected it, and calculated ' +
         esc(score) + ' only from verified company facts.</p></div>';
     }
     var html =
       '<div class="result-level result-outcome"><div class="result-level-label">01 / RESPONSIBLE OUTCOME</div><div>' +
+      (state.lead.scenario_key === "prompt-injection" ? '<p class="label mb-2">Lead outcome</p>' : "") +
       '<span class="pill badge-outcome-' + outcome + '">' + (OUTCOME_LABEL[outcome] || outcome) + "</span>" +
       '<p class="text-base text-muted mt-3" style="max-width:42rem;">' + outcomeExplainer + "</p>" + securityNote + "</div>" +
       '<div class="result-meta">' + (replayed ? "Cached guided result" : (elapsed !== null ? elapsed + "s end to end" : "Live pipeline")) + "</div>";
