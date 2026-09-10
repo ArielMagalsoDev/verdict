@@ -35,6 +35,13 @@
   var errorBox = document.getElementById("error-box");
   var resultBox = document.getElementById("result-box");
   var resultAnchor = document.getElementById("result-anchor");
+  var feedbackText = document.getElementById("scenario-feedback-text");
+  var resultLink = document.getElementById("scenario-result-link");
+
+  function feedback(message, ready) {
+    feedbackText.textContent = message;
+    resultLink.hidden = !ready;
+  }
 
   var busy = false;
 
@@ -63,7 +70,8 @@
     }
     html += "</div>";
     errorBox.innerHTML = html;
-    resultAnchor.scrollIntoView({ behavior: "auto", block: "start" });
+    feedback(message, true);
+    scenarioButtons.forEach(function (b) { b.querySelector('.scenario-status').textContent = ''; });
   }
 
   function clearError() {
@@ -265,23 +273,30 @@
         esc(score) + ' only from verified company facts.</p></div>';
     }
     var html =
-      '<div class="result-level result-outcome"><div class="result-level-label">01 / RESPONSIBLE OUTCOME</div><div>' +
+      '<div class="result-level result-outcome"><div class="result-level-label">01 / YOUR RECOMMENDATION</div><div>' +
       (state.lead.scenario_key === "prompt-injection" ? '<p class="label mb-2">Lead outcome</p>' : "") +
       '<span class="pill badge-outcome-' + outcome + '">' + (OUTCOME_LABEL[outcome] || outcome) + "</span>" +
       '<p class="text-base text-muted mt-3" style="max-width:42rem;">' + outcomeExplainer + "</p>" + securityNote + "</div>" +
       '<div class="result-meta">' + (replayed ? "Cached guided result" : (elapsed !== null ? elapsed + "s end to end" : "Live pipeline")) + "</div>";
     html += "</div>";
 
-    html += '<section class="result-level mt-6"><div class="result-level-label">02 / VERIFIED INPUTS AND EVIDENCE</div><div class="grid-responsive" style="grid-template-columns: 1fr 1fr;">';
+    var nextSteps = {
+      qualified: "Review the verified facts, proposed CRM changes, and outreach draft below. Nothing has been sent or applied.",
+      insufficient_evidence: "Confirm the company identity and collect the missing information below before requesting a score.",
+      duplicate_or_merge_review: "Check the existing record before taking action. Do not create another contact or start sales outreach from this result.",
+      disqualified: "Review the recorded reason. No sales outreach is proposed for this lead."
+    };
+    html += '<div class="client-next-step"><strong>What your team does next</strong><p>' + esc(nextSteps[outcome] || "Review the evidence before taking action.") + '</p></div>';
+
+    html += '<section class="result-level mt-6"><div class="result-level-label">02 / WHAT WE KNOW</div><div class="grid-responsive" style="grid-template-columns: 1fr 1fr;">';
     html += renderInboundPanel(state.lead);
     html += renderEvidencePanel(state);
     html += "</div></section>";
-    html += '<section class="result-level mt-6"><div class="result-level-label">03 / DETERMINISTIC DECISION</div><div class="grid-responsive" style="grid-template-columns: 1fr 1fr;">';
-    html += renderQualificationPanel(state);
+    html += '<section class="result-level mt-6"><div class="result-level-label">03 / PROPOSED CRM HANDOFF</div>';
     html += renderCrmActionPanel(state);
-    html += "</div></section>";
+    html += "</section>";
 
-    html += '<section class="result-level mt-6"><div class="result-level-label">04 / HUMAN CONTROL BOUNDARY</div>';
+    html += '<section class="result-level mt-6"><div class="result-level-label">04 / YOUR OUTREACH REVIEW</div>';
     if (state.draft) {
       html += renderDraftPanel(state.lead.id, state.draft);
     } else {
@@ -289,7 +304,9 @@
     }
     html += "</section>";
 
-    html += '<div class="mt-6">' + renderAuditTrail(state.audit_events) + "</div>";
+    html += '<details class="client-details"' + (outcome === 'insufficient_evidence' ? ' open' : '') + '><summary>Why this recommendation? Rules and missing information</summary><div class="mt-4">' + renderQualificationPanel(state) + '</div></details>';
+    html += '<details class="client-details"><summary>Inspect the full audit trail</summary><div class="mt-4">' + renderAuditTrail(state.audit_events) + '</div></details>';
+    html += '<a class="client-text-link" style="display:inline-block;margin-top:28px" href="#lead-workspace">Try another enquiry ↑</a>';
 
     resultBox.style.display = "block";
     resultBox.innerHTML = html;
@@ -330,7 +347,7 @@
           return;
         }
         setBusy(false);
-        scenarioButtons.forEach(function (b) { b.querySelector(".scenario-status").style.display = "none"; });
+        scenarioButtons.forEach(function (b) { b.querySelector(".scenario-status").textContent = b.classList.contains('is-selected') ? 'Complete ✓' : ''; });
         if (submitLabel) submitLabel.textContent = "Run my lead through Verdict";
 
         if (state.status === "failed_permanent") {
@@ -339,7 +356,7 @@
         }
         clearError();
         renderResult(state, state.outcome, replayed);
-        resultAnchor.scrollIntoView({ behavior: "auto", block: "start" });
+        feedback((OUTCOME_LABEL[state.outcome] || 'Result') + ' — ready to review. Your result is below.', true);
       })
       .catch(function () {
         setBusy(false);
@@ -350,6 +367,7 @@
   function submit(url, body, loadingEl) {
     if (busy) return;
     setBusy(true);
+    feedback('Checking this enquiry. You can stay here while Verdict prepares the result.', false);
     runStartedAt = Date.now();
     clearError();
     resultBox.style.display = "none";
@@ -380,8 +398,14 @@
   // -------- wiring --------
   scenarioButtons.forEach(function (btn) {
     btn.addEventListener("click", function () {
+      if (busy) return;
+      scenarioButtons.forEach(function (b) {
+        b.classList.toggle('is-selected', b === btn);
+        b.setAttribute('aria-pressed', String(b === btn));
+        b.querySelector('.scenario-status').textContent = '';
+      });
       var statusEl = btn.querySelector(".scenario-status");
-      if (statusEl) statusEl.style.display = "block";
+      if (statusEl) statusEl.textContent = 'Running…';
       submit("/api/v1/scenarios/" + btn.getAttribute("data-key"), {}, null);
     });
   });

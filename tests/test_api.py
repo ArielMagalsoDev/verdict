@@ -50,11 +50,17 @@ def test_home_exposes_private_integration_configurator(client):
     assert "/static/js/integration.js" in body
 
 
-def test_demo_exposes_guided_sequence_and_optional_custom_form(client):
+def test_demo_exposes_guided_sequence_without_custom_form(client):
     body = client.get("/demo").text
-    for label in ("Choose lead", "Resolve identity", "Gather evidence", "Gate", "Score", "Human review"):
+    for label in ("Choose an enquiry", "Check the company", "Assess the fit", "Review the next step"):
         assert label in body
-    assert "custom-lead-disclosure" in body
+    assert 'id="client-value"' in body
+    assert 'id="lead-workspace"' in body
+    assert "Know which leads deserve your team's attention." in body
+    assert body.count('class="client-value-card"') == 4
+    assert "custom-lead-disclosure" not in body
+    assert 'id="custom-lead-form"' not in body
+    assert body.count('data-key=') == 4
     assert "turnstile" not in body.lower()
 
 

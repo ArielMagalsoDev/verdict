@@ -1,5 +1,7 @@
 {% extends "base.html" %}
+{% block head %}<link rel="stylesheet" href="/static/css/demo-client.css" />{% endblock %}
 {% block content %}
+<div class="client-demo">
 
 <section id="guided-demo" class="blueprint-grid relative overflow-hidden" style="scroll-margin-top:6rem;">
   <div aria-hidden="true">
@@ -7,120 +9,79 @@
     <span class="pixel-block" style="top:36px; right:24px; width:36px; height:36px;"></span>
   </div>
   <div class="container-5xl pt-16 pb-12 sm:pt-24 sm:pb-14">
-    <p class="label mb-4">//GUIDED DEMO</p>
-    <h1 class="display-hero text-4xl sm:text-6xl">Pick a lead. Watch it decide.</h1>
-    <p class="text-muted mt-6 max-w-2xl">
-      Four fictional leads, each engineered to expose a different safety lesson across Verdict's
-      responsible outcomes. Two qualify for different reasons; the others refuse, hold, or
-      disqualify. Pick one — this runs the real pipeline against seeded fixture data, not a script.
-    </p>
+    <div class="client-hero-grid">
+      <div>
+        <p class="label mb-4">//CLIENT USE CASE · SALES OPERATIONS</p>
+        <h1 class="display-hero">Know which leads deserve your team's attention.</h1>
+        <p class="client-intro">Turn an inbound enquiry into an evidence-backed next step. Verdict researches the company, checks fit, and prepares the handoff. Your team stays in control.</p>
+        <div class="client-actions"><a href="#lead-workspace" class="btn-dark-icon"><span class="icon-square" aria-hidden="true">→</span>Try the client workflow</a><a href="#client-value" class="client-text-link">See what it solves ↗</a></div>
+        <p class="client-disclaimer">Fictional companies. Seeded research. No emails sent.</p>
+      </div>
+      <div class="client-handoff" aria-label="Illustrative lead handoff">
+        <div class="client-panel-header"><span class="label">//THE HANDOFF</span><span class="client-live">ILLUSTRATIVE</span></div>
+        <div class="client-enquiry"><span class="label">INBOUND ENQUIRY</span><h2>“Can you help our growing operations team?”</h2><p>Harborline Clinics · New business enquiry</p></div>
+        <div class="client-check"><span>↳</span><div><strong>Research the business</strong><p>Company facts linked to their sources</p></div></div>
+        <div class="client-check"><span>↳</span><div><strong>Check the fit</strong><p>Your rules. No score without enough evidence.</p></div></div>
+        <div class="client-review"><span class="label">READY FOR A PERSON</span><h3>Review. Decide. Move forward.</h3><p>Qualification + proposed CRM changes + outreach draft</p></div>
+        <p class="client-panel-note">Nothing applied or sent without approval.</p>
+      </div>
+    </div>
   </div>
 </section>
 
 <div class="container-5xl" style="padding-bottom:3.5rem;">
+  <section id="client-value" class="client-value">
+    <div class="client-section-heading"><p class="label">//THE BUSINESS PROBLEM</p><h2>Less research busywork.<br>More informed follow-up.</h2><p>You manage sales at fictional Northstar Ops. New enquiries need research, qualification, and a clean handoff—not another untraceable AI summary.</p></div>
+    <div class="client-value-grid">
+      {% for title, description, before, after in [
+        ('Reduce manual research', 'Bring source-backed company facts into one review.', 'New enquiry', 'Verified context'),
+        ('Prioritize with evidence', 'Check fit against explicit rules. Ask questions when facts are missing.', 'Company facts', 'Clear next step'),
+        ('Protect your CRM', 'Check existing records before proposing a new contact or a merge.', 'Identity check', 'Reviewable changes'),
+        ('Keep your team in control', 'Prepare outreach for a person to review, not an automatic send.', 'Draft prepared', 'Human approval')
+      ] %}<article class="client-value-card"><h3>{{ title }}</h3><p>{{ description }}</p><div class="client-mini-flow"><span>{{ before }}</span><span aria-hidden="true">→</span><strong>{{ after }}</strong></div></article>{% endfor %}
+    </div>
+  </section>
+  <section id="lead-workspace" class="client-workspace-heading"><p class="label">//YOUR SALES DESK</p><h2>One enquiry.<br>A clear next move.</h2><p>Choose a situation below. See what Verdict finds, why it makes its recommendation, and what your team should review next.</p><span class="client-mode">Fictional data · no emails sent · human review required</span></section>
 
   <ol class="demo-process-rail mt-8" aria-label="Verdict processing sequence">
-    {% for step in ["Choose lead", "Resolve identity", "Gather evidence", "Gate", "Score", "Human review"] %}
+    {% for step in ["Choose an enquiry", "Check the company", "Assess the fit", "Review the next step"] %}
     <li><span>0{{ loop.index }}</span>{{ step }}</li>
     {% endfor %}
   </ol>
 
   <div class="demo-orientation mt-8">
-    <p><strong>What to watch:</strong> the language model handles classification and extraction. Plain code owns evidence thresholds, scoring, and approval boundaries.</p>
-    <a href="/architecture" class="btn-outline px-4 py-2">See the implementation</a>
+    <p><strong>Your role:</strong> review the recommendation and its evidence. CRM changes remain proposals, and outreach approval is simulated in this demo.</p>
+    <a href="/architecture" class="btn-outline px-4 py-2">How it works ↗</a>
   </div>
 
   <div class="grid-responsive mt-8" style="grid-template-columns: repeat(4, 1fr);" id="scenario-buttons">
     {% for s in scenarios %}
     <button type="button" class="card card-lift p-4 text-left relative scenario-btn" data-key="{{ s.key }}" style="position:relative; border:1px solid var(--line); background:var(--card);">
       <span class="ghost-num" aria-hidden="true" style="position:absolute; top:0.5rem; right:0.75rem; font-size:1.75rem;">0{{ loop.index }}</span>
-      <div class="label label-ink">{{ s.title }}</div>
+      <div class="label label-ink">{% if s.key == 'sales-ready' %}A promising enquiry{% elif s.key == 'insufficient-evidence' %}An unclear company{% elif s.key == 'duplicate-vendor' %}An existing vendor{% else %}A manipulated research page{% endif %}</div>
       <div class="text-sm text-muted mt-1_5 leading-snug">{{ s.blurb }}</div>
       <div class="scenario-lesson">
-        {% if s.key == "sales-ready" %}Lesson: evidence can justify action without giving the model scoring authority.
-        {% elif s.key == "insufficient-evidence" %}Lesson: refusal is a useful result when identity or evidence is unresolved.
-        {% elif s.key == "duplicate-vendor" %}Lesson: identity resolution prevents a confident but damaging CRM write.
-        {% else %}Lesson: retrieved content is untrusted data, never an instruction source.
+        {% if s.key == "sales-ready" %}Next step: prepare for sales review.
+        {% elif s.key == "insufficient-evidence" %}Next step: request missing information.
+        {% elif s.key == "duplicate-vendor" %}Next step: review the existing record.
+        {% else %}Next step: ignore the attack; assess the business facts.
         {% endif %}
       </div>
-      <div class="text-xs mt-2 font-semibold scenario-status" style="color: var(--signal); display:none;">Running pipeline&hellip;</div>
+      <span class="scenario-action"><span class="btn-dark-icon scenario-run"><span class="icon-square" aria-hidden="true">→</span><span>Run this demo</span></span><span class="scenario-status" aria-live="polite"></span></span>
     </button>
     {% endfor %}
   </div>
 
-  <details class="custom-lead-disclosure mt-10">
-    <summary><span><span class="label">//OPTIONAL</span> Bring your own fictional lead</span><span aria-hidden="true">+</span></summary>
-    <div class="pt-8">
-    <p class="text-sm text-muted max-w-2xl mb-4 leading-relaxed">
-      Write your own lead and Verdict runs the exact same live pipeline on it — no script.
-      Most real companies come back <strong>insufficient evidence</strong>, because Verdict only
-      has seeded research for a small set of companies (see the architecture page) — that
-      refusal is the evidence-sufficiency gate working as designed, not a broken demo. Click one
-      of these first to also see a fully scored run with your own words:
-    </p>
-    <div class="flex flex-wrap gap-2 mb-6" id="autofill-chips">
-      <button type="button" class="btn-outline px-3 py-1_5 text-xs autofill-btn" data-company="Harborline Clinics" data-website="harborlineclinics.com" data-country="United States">Try Harborline Clinics</button>
-      <button type="button" class="btn-outline px-3 py-1_5 text-xs autofill-btn" data-company="Meridian Fleet Services" data-website="meridianfleetservices.ca" data-country="Canada">Try Meridian Fleet Services</button>
-      <button type="button" class="btn-outline px-3 py-1_5 text-xs autofill-btn" data-company="Northbridge Facilities Group" data-website="northbridgefacilities.co.uk" data-country="United Kingdom">Try Northbridge Facilities Group</button>
-    </div>
-
-    <form class="card p-5" id="custom-lead-form" style="display:flex; flex-direction:column; gap:1rem;">
-      <div class="grid-responsive" style="grid-template-columns: repeat(2, 1fr);">
-        <label class="text-sm" style="display:block;">
-          <span class="label slash-label label-ink">First name</span>
-          <input type="text" name="first_name" required class="w-full mt-1 p-2 rounded-lg border text-sm" />
-        </label>
-        <label class="text-sm" style="display:block;">
-          <span class="label slash-label label-ink">Last name</span>
-          <input type="text" name="last_name" required class="w-full mt-1 p-2 rounded-lg border text-sm" />
-        </label>
-        <label class="text-sm" style="display:block;">
-          <span class="label slash-label label-ink">Work email</span>
-          <input type="email" name="work_email" required class="w-full mt-1 p-2 rounded-lg border text-sm" />
-        </label>
-        <label class="text-sm" style="display:block;">
-          <span class="label slash-label label-ink">Company name</span>
-          <input type="text" name="company_name" required class="w-full mt-1 p-2 rounded-lg border text-sm" />
-        </label>
-        <label class="text-sm" style="display:block;">
-          <span class="label slash-label label-ink">Website <span class="text-xs" style="text-transform:none;">(optional)</span></span>
-          <input type="text" name="website" placeholder="yourcompany.com" class="w-full mt-1 p-2 rounded-lg border text-sm" />
-        </label>
-        <label class="text-sm" style="display:block;">
-          <span class="label slash-label label-ink">Country <span class="text-xs" style="text-transform:none;">(optional)</span></span>
-          <input type="text" name="country" placeholder="United States" class="w-full mt-1 p-2 rounded-lg border text-sm" />
-        </label>
-      </div>
-
-      <label class="text-sm" style="display:block;">
-        <span class="label slash-label label-ink">Message</span>
-        <textarea name="message" required rows="3" maxlength="500" placeholder="What are you hoping Northstar Ops could help with?" class="w-full mt-1 p-2 rounded-lg border text-sm"></textarea>
-        <span class="text-xs text-muted"><span id="message-count">0</span>/500</span>
-      </label>
-
-      <label class="flex items-start gap-2 text-xs text-muted leading-relaxed">
-        <input required type="checkbox" name="consent" style="margin-top:0.15rem;" />
-        I consent to Verdict processing this fictional submission to run the demo pipeline. This
-        spends real (small, capped) demo budget and is never cached — unlike the presets above, it
-        will not say &ldquo;served from cache&rdquo; on a repeat run. Sending and CRM writes stay
-        simulated either way.
-      </label>
-
-      <button type="submit" class="btn-dark-icon" id="custom-submit-btn" disabled>
-        <span class="icon-square" aria-hidden="true">&rarr;</span>
-        <span id="custom-submit-label">Run my lead through Verdict</span>
-      </button>
-    </form>
-    </div>
-  </details>
+  <div class="scenario-feedback" role="status" aria-live="polite"><span id="scenario-feedback-text">Choose a scenario to start. Your result will appear below.</span><a id="scenario-result-link" href="#result-anchor" hidden>View result ↓</a></div>
 
   <div id="result-anchor" style="scroll-margin-top: 5rem;">
     <div id="error-box" style="display:none;"></div>
     <div id="result-box" style="display:none; margin-top:2.5rem;"></div>
   </div>
 </div>
-
+<section class="client-closing container-5xl"><p class="label">//BUILT TO BE INSPECTED</p><h2>The recommendation is only the beginning.</h2><p>Follow the evidence, understand the rules, and keep a person responsible for consequential actions.</p><div class="client-actions"><a class="btn-dark-icon" href="/architecture"><span class="icon-square" aria-hidden="true">↗</span>Explore the architecture</a><a class="client-text-link" href="/evals">Inspect the evaluations ↗</a><a class="client-text-link" href="#lead-workspace">Try another enquiry ↑</a></div></section>
+</div>
 {% endblock %}
 {% block scripts %}
-<script src="/static/js/demo.js?v=injection-outcome-2"></script>
+<script src="/static/js/demo.js?v=client-first-1"></script>
 {% endblock %}
